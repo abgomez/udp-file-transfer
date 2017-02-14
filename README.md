@@ -7,13 +7,13 @@ that utilizes UDP as its transport.
 
 ### Undergraduates: only need to implement "get"
 
-Syntax: get <filename>
+Client syntax: get *filename*
 
 ### Graduate students: must implement both "get" and "put"
 
-Syntax:
-* get "filename"
-* put "filename"
+Client syntax:
+* get *filename*
+* put *filename*
 
 ## Requirements:
 * Your server should be a separate program from the client.  
