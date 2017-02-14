@@ -1,6 +1,6 @@
 # nets-udp-proxy
 
-"udpProxy.py:"
+## udpProxy.py
 UDP Proxy
 ~~~
           Option                                   Default     Description
@@ -18,4 +18,14 @@ UDP Proxy
 
          [--verbose]                                    off    Verbose Mode
          [--help]                                              Display help message
+~~~
+
+## udpClient.py
+~~~
+Optional parameter --serverAddr <host:port> (default localhost:50000)
+~~~
+
+## udpServer.py
+~~~
+Optional paramter --serverPort <port> (default 50001)
 ~~~
