@@ -12,8 +12,8 @@ Syntax: get <filename>
 ### Graduate students: must implement both "get" and "put"
 
 Syntax:
-* get <filename>
-* put <filename>
+* get "filename"
+* put "filename"
 
 ## Requirements:
 * Your server should be a separate program from the client.  
