@@ -27,9 +27,9 @@ binary files (at least 1MB) even when the UDP proxy delays and drops some of the
 protocol is unable to successfully transfer a file. 
 * Your implimentation protocol should display measured RTT.
 * Your report should
-** describe the prototcol
-** indicate and analyze its performance for each of the following
-proxy configurations (scripts are in the proxy subdir):
+ * describe the prototcol
+ * indicate and analyze its performance for each of the following
+   proxy configurations (scripts are in the proxy subdir):
 
 | Script | Throughput |  PropDelay | QueueCap | pDrop | pDelay |
 |--------|------------|------------|----------|-------|--------|
