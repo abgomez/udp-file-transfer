@@ -25,7 +25,7 @@ implementing and documenting either the client or server.
 binary files (at least 1MB) even when the UDP proxy delays and drops some of the datagrams. 
 * The client and server should do "something reasonable" when the
 protocol is unable to successfully transfer a file. 
-* Your implimentation protocol should display measured RTT.
+* Your implimentation should indicate relevant stats such as measured RTT and throughput.  
 * Your report should
  * describe the prototcol
  * indicate and analyze its performance for each of the following
