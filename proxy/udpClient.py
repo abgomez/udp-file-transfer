@@ -26,7 +26,9 @@ except:
 
 
 clientSocket = socket(AF_INET, SOCK_DGRAM)
-message = raw_input("Input lowercase msg:")
-clientSocket.sendto(message, serverAddr)
-modifiedMessage, serverAddrPort = clientSocket.recvfrom(2048)
-print "Modified message from %s is <%s>" % (repr(serverAddrPort), modifiedMessage)
+for x in range (0, 6):
+    """message = raw_input("Input lowercase msg:")
+    clientSocket.sendto(message, serverAddr)
+    modifiedMessage, serverAddrPort = clientSocket.recvfrom(2048)
+    print "Modified message from %s is <%s>" % (repr(serverAddrPort), modifiedMessage)"""
+    clientSocket.sendto("hello", serverAddr)

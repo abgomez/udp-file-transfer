@@ -132,6 +132,7 @@ class TransmissionSim:
             del q[0]
         if len(q) >= self.qCap: # drop if q full
             if verbose: print "... queue full (oldest relTime = %f).  :(" % relTime(q[0])
+            print "... queue full"
             return
 
         # we really don't throttle (bytes/second) so a message is sent as a burst
