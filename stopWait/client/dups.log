@@ -1,0 +1,882 @@
+packet's header, type: G, seq: 0
+packet's message: declaration.txt
+Full packet: G0declaration.txt
+ready to communicate
+timeout: no events
+Packet received from server: WHEN, in the Course of human Events, it becomes necessary for one
+People to dissolve the Political B
+packet's header, type: A, seq: 1
+packet's message: ack
+Full packet: A1ack
+timeout: no events
+Packet received from server: WHEN, in the Course of human Events, it becomes necessary for one
+People to dissolve the Political B
+Duplicate packet, do nothing
+timeout: no events
+Packet received from server: ands which have connected them with
+another, and to assume, among the Powers of the Earth, the separ
+packet's header, type: A, seq: 2
+packet's message: ack
+Full packet: A2ack
+timeout: no events
+Packet received from server: ands which have connected them with
+another, and to assume, among the Powers of the Earth, the separ
+Duplicate packet, do nothing
+Packet received from server: ate
+and equal Station to which the Laws of Nature and of Nature's GOD
+entitle them, a decent Respect
+packet's header, type: A, seq: 3
+packet's message: ack
+Full packet: A3ack
+timeout: no events
+Packet received from server: ate
+and equal Station to which the Laws of Nature and of Nature's GOD
+entitle them, a decent Respect
+Duplicate packet, do nothing
+Packet received from server:  to the Opinions of Mankind requires
+that they should declare the Causes which impel them to the
+Sep
+packet's header, type: A, seq: 4
+packet's message: ack
+Full packet: A4ack
+timeout: no events
+Packet received from server:  to the Opinions of Mankind requires
+that they should declare the Causes which impel them to the
+Sep
+Duplicate packet, do nothing
+timeout: no events
+Packet received from server: aration.
+
+We hold these Truths to be self-evident, that all Men are created
+equal, that they are end
+packet's header, type: A, seq: 5
+packet's message: ack
+Full packet: A5ack
+timeout: no events
+Packet received from server: aration.
+
+We hold these Truths to be self-evident, that all Men are created
+equal, that they are end
+Duplicate packet, do nothing
+Packet received from server: owed, by their CREATOR, with certain
+unalienable Rights, that among these are Life, Liberty, and the
+packet's header, type: A, seq: 6
+packet's message: ack
+Full packet: A6ack
+timeout: no events
+Packet received from server: 
+Pursuit of Happiness.--That to secure these Rights, Governments are
+instituted among Men, deriving 
+packet's header, type: A, seq: 7
+packet's message: ack
+Full packet: A7ack
+timeout: no events
+Packet received from server: 
+Pursuit of Happiness.--That to secure these Rights, Governments are
+instituted among Men, deriving 
+Duplicate packet, do nothing
+Packet received from server: their just Powers from the Consent of
+the Governed, that whenever any Form of Government becomes des
+packet's header, type: A, seq: 8
+packet's message: ack
+Full packet: A8ack
+timeout: no events
+Packet received from server: their just Powers from the Consent of
+the Governed, that whenever any Form of Government becomes des
+Duplicate packet, do nothing
+Packet received from server: tructive
+of these Ends, it is the Right of the People to alter or to abolish
+it, and to institute ne
+packet's header, type: A, seq: 9
+packet's message: ack
+Full packet: A9ack
+Packet received from server: ands which have connected them with
+another, and to assume, among the Powers of the Earth, the separ
+Duplicate packet, do nothing
+Packet received from server: tructive
+of these Ends, it is the Right of the People to alter or to abolish
+it, and to institute ne
+Duplicate packet, do nothing
+Packet received from server: w Government, laying its Foundation on such
+Principles, and organizing its Powers in such Form, as t
+packet's header, type: A, seq: 10
+packet's message: ack
+Full packet: A10ack
+timeout: no events
+timeout: no events
+Packet received from server: o them shall
+seem most likely to effect their Safety and Happiness. Prudence,
+indeed, will dictate, 
+packet's header, type: A, seq: 11
+packet's message: ack
+Full packet: A11ack
+Packet received from server: o them shall
+seem most likely to effect their Safety and Happiness. Prudence,
+indeed, will dictate, 
+Duplicate packet, do nothing
+Packet received from server: that Governments long established, should not be
+changed for light and transient Causes; and accordi
+packet's header, type: A, seq: 12
+packet's message: ack
+Full packet: A12ack
+Packet received from server: aration.
+
+We hold these Truths to be self-evident, that all Men are created
+equal, that they are end
+Duplicate packet, do nothing
+Packet received from server: ngly all Experience
+hath shewn, that Mankind are more disposed to suffer, while Evils are
+sufferable
+packet's header, type: A, seq: 13
+packet's message: ack
+Full packet: A13ack
+timeout: no events
+Packet received from server: , than to right themselves by abolishing the Forms to which
+they are accustomed. But when a long Tra
+packet's header, type: A, seq: 14
+packet's message: ack
+Full packet: A14ack
+timeout: no events
+Packet received from server: , than to right themselves by abolishing the Forms to which
+they are accustomed. But when a long Tra
+Duplicate packet, do nothing
+Packet received from server: owed, by their CREATOR, with certain
+unalienable Rights, that among these are Life, Liberty, and the
+Duplicate packet, do nothing
+Packet received from server: in of Abuses and Usurpations,
+pursuing invariably the same Object, evinces a Design to reduce them
+u
+packet's header, type: A, seq: 15
+packet's message: ack
+Full packet: A15ack
+timeout: no events
+Packet received from server: in of Abuses and Usurpations,
+pursuing invariably the same Object, evinces a Design to reduce them
+u
+Duplicate packet, do nothing
+Packet received from server: nder absolute Despotism, it is their Right, it is their Duty, to
+throw off such Government, and to p
+packet's header, type: A, seq: 16
+packet's message: ack
+Full packet: A16ack
+timeout: no events
+Packet received from server: nder absolute Despotism, it is their Right, it is their Duty, to
+throw off such Government, and to p
+Duplicate packet, do nothing
+Packet received from server: rovide new Guards for their future
+Security. Such has been the patient Sufferance of these Colonies;
+packet's header, type: A, seq: 17
+packet's message: ack
+Full packet: A17ack
+Packet received from server: rovide new Guards for their future
+Security. Such has been the patient Sufferance of these Colonies;
+Duplicate packet, do nothing
+Packet received from server:  and
+such is now the Necessity which constrains them to alter their former
+Systems of Government. Th
+packet's header, type: A, seq: 18
+packet's message: ack
+Full packet: A18ack
+timeout: no events
+Packet received from server: e History of the present King of
+Great-Britain is a History of repeated Injuries and Usurpations, al
+packet's header, type: A, seq: 19
+packet's message: ack
+Full packet: A19ack
+Packet received from server: o them shall
+seem most likely to effect their Safety and Happiness. Prudence,
+indeed, will dictate, 
+Duplicate packet, do nothing
+Packet received from server: e History of the present King of
+Great-Britain is a History of repeated Injuries and Usurpations, al
+Duplicate packet, do nothing
+timeout: no events
+timeout: no events
+Packet received from server: l
+having in direct Object the Establishment of an absolute Tyranny over
+these States. To prove this,
+packet's header, type: A, seq: 20
+packet's message: ack
+Full packet: A20ack
+timeout: no events
+Packet received from server: l
+having in direct Object the Establishment of an absolute Tyranny over
+these States. To prove this,
+Duplicate packet, do nothing
+Packet received from server:  let Facts be submitted to a candid World.
+
+HE has refused his Assent to Laws, the most wholesome an
+packet's header, type: A, seq: 21
+packet's message: ack
+Full packet: A21ack
+timeout: no events
+Packet received from server:  let Facts be submitted to a candid World.
+
+HE has refused his Assent to Laws, the most wholesome an
+Duplicate packet, do nothing
+Packet received from server: d necessary
+for the public Good.
+
+HE has forbidden his Governors to pass Laws of immediate and press
+packet's header, type: A, seq: 22
+packet's message: ack
+Full packet: A22ack
+Packet received from server: d necessary
+for the public Good.
+
+HE has forbidden his Governors to pass Laws of immediate and press
+Duplicate packet, do nothing
+Packet received from server: ing
+Importance, unless suspended in their Operation till his Assent should
+be obtained; and when so 
+packet's header, type: A, seq: 23
+packet's message: ack
+Full packet: A23ack
+timeout: no events
+Packet received from server: suspended, he has utterly neglected to attend
+to them.
+
+HE has refused to pass other Laws for the Ac
+packet's header, type: A, seq: 24
+packet's message: ack
+Full packet: A24ack
+timeout: no events
+Packet received from server: suspended, he has utterly neglected to attend
+to them.
+
+HE has refused to pass other Laws for the Ac
+Duplicate packet, do nothing
+timeout: no events
+Packet received from server: commodation of large
+Districts of People, unless those People would relinquish the Right of
+Represen
+packet's header, type: A, seq: 25
+packet's message: ack
+Full packet: A25ack
+timeout: no events
+Packet received from server: commodation of large
+Districts of People, unless those People would relinquish the Right of
+Represen
+Duplicate packet, do nothing
+Packet received from server: tation in the Legislature, a Right inestimable to them, and
+formidable to Tyranny only.
+
+HE has call
+packet's header, type: A, seq: 26
+packet's message: ack
+Full packet: A26ack
+Packet received from server: l
+having in direct Object the Establishment of an absolute Tyranny over
+these States. To prove this,
+Duplicate packet, do nothing
+Packet received from server: ed together Legislative Bodies at Places unusual,
+uncomfortable, and distant from the Depository of 
+packet's header, type: A, seq: 27
+packet's message: ack
+Full packet: A27ack
+timeout: no events
+Packet received from server: their public
+Records, for the sole Purpose of fatiguing them into Compliance with
+his Measures.
+
+HE 
+packet's header, type: A, seq: 28
+packet's message: ack
+Full packet: A28ack
+Packet received from server: their public
+Records, for the sole Purpose of fatiguing them into Compliance with
+his Measures.
+
+HE 
+Duplicate packet, do nothing
+Packet received from server: has dissolved Representative Houses repeatedly, for opposing with
+manly Firmness his Invasions on th
+packet's header, type: A, seq: 29
+packet's message: ack
+Full packet: A29ack
+timeout: no events
+Packet received from server: e Rights of the People.
+
+HE has refused for a long Time, after such Dissolutions, to cause
+others to
+packet's header, type: A, seq: 30
+packet's message: ack
+Full packet: A30ack
+timeout: no events
+Packet received from server: e Rights of the People.
+
+HE has refused for a long Time, after such Dissolutions, to cause
+others to
+Duplicate packet, do nothing
+Packet received from server:  be elected; whereby the Legislative Powers, incapable of
+Annihilation, have returned to the People 
+packet's header, type: A, seq: 31
+packet's message: ack
+Full packet: A31ack
+Packet received from server:  be elected; whereby the Legislative Powers, incapable of
+Annihilation, have returned to the People 
+Duplicate packet, do nothing
+Packet received from server: at large for their exercise;
+the State remaining, in the mean Time, exposed to all the Dangers of
+In
+packet's header, type: A, seq: 32
+packet's message: ack
+Full packet: A32ack
+timeout: no events
+Packet received from server: vasion from without, and Convulsions within.
+
+HE has endeavoured to prevent the Population of these 
+packet's header, type: A, seq: 33
+packet's message: ack
+Full packet: A33ack
+Packet received from server: commodation of large
+Districts of People, unless those People would relinquish the Right of
+Represen
+Duplicate packet, do nothing
+timeout: no events
+timeout: no events
+timeout: no events
+Packet received from server: tation in the Legislature, a Right inestimable to them, and
+formidable to Tyranny only.
+
+HE has call
+Duplicate packet, do nothing
+Packet received from server: States; for that
+Purpose obstructing the Laws for Naturalization of Foreigners;
+refusing to pass oth
+packet's header, type: A, seq: 34
+packet's message: ack
+Full packet: A34ack
+timeout: no events
+Packet received from server: ers to encourage their Migrations hither, and
+raising the Conditions of new Appropriations of Lands.
+packet's header, type: A, seq: 35
+packet's message: ack
+Full packet: A35ack
+timeout: no events
+Packet received from server: ers to encourage their Migrations hither, and
+raising the Conditions of new Appropriations of Lands.
+Duplicate packet, do nothing
+timeout: no events
+Packet received from server: 
+
+HE has obstructed the Administration of Justice, by refusing his
+Assent to Laws for establishing J
+packet's header, type: A, seq: 36
+packet's message: ack
+Full packet: A36ack
+timeout: no events
+Packet received from server: 
+
+HE has obstructed the Administration of Justice, by refusing his
+Assent to Laws for establishing J
+Duplicate packet, do nothing
+timeout: no events
+Packet received from server: udiciary Powers.
+
+HE has made Judges dependent on his Will alone, for the Tenure of
+their Offices, a
+packet's header, type: A, seq: 37
+packet's message: ack
+Full packet: A37ack
+timeout: no events
+Packet received from server: udiciary Powers.
+
+HE has made Judges dependent on his Will alone, for the Tenure of
+their Offices, a
+Duplicate packet, do nothing
+Packet received from server: nd the Amount and Payment of their Salaries.
+
+HE has erected a Multitude of new Offices, and sent hi
+packet's header, type: A, seq: 38
+packet's message: ack
+Full packet: A38ack
+Packet received from server: vasion from without, and Convulsions within.
+
+HE has endeavoured to prevent the Population of these 
+Duplicate packet, do nothing
+Packet received from server: States; for that
+Purpose obstructing the Laws for Naturalization of Foreigners;
+refusing to pass oth
+Duplicate packet, do nothing
+Packet received from server: nd the Amount and Payment of their Salaries.
+
+HE has erected a Multitude of new Offices, and sent hi
+Duplicate packet, do nothing
+Packet received from server: ther Swarms of
+Officers to harrass our People, and eat out their Substance.
+
+HE has kept among us, i
+packet's header, type: A, seq: 39
+packet's message: ack
+Full packet: A39ack
+Packet received from server: States; for that
+Purpose obstructing the Laws for Naturalization of Foreigners;
+refusing to pass oth
+Duplicate packet, do nothing
+Packet received from server: n Times of Peace, Standing Armies, without the
+Consent of our Legislatures.
+
+HE has affected to rend
+packet's header, type: A, seq: 40
+packet's message: ack
+Full packet: A40ack
+timeout: no events
+Packet received from server: er the Military independent of and superior to
+the Civil Power.
+
+HE has combined with others to subj
+packet's header, type: A, seq: 41
+packet's message: ack
+Full packet: A41ack
+timeout: no events
+Packet received from server: ect us to a Jurisdiction foreign to
+our Constitution, and unacknowledged by our Laws; giving his Ass
+packet's header, type: A, seq: 42
+packet's message: ack
+Full packet: A42ack
+timeout: no events
+Packet received from server: ect us to a Jurisdiction foreign to
+our Constitution, and unacknowledged by our Laws; giving his Ass
+Duplicate packet, do nothing
+Packet received from server: ent to
+their Acts of pretended Legislation:
+
+FOR quartering large Bodies of Armed Troops among us:
+
+
+packet's header, type: A, seq: 43
+packet's message: ack
+Full packet: A43ack
+Packet received from server: 
+
+HE has obstructed the Administration of Justice, by refusing his
+Assent to Laws for establishing J
+Duplicate packet, do nothing
+timeout: no events
+Packet received from server: FOR protecting them, by a mock Trial, from Punishment for any Murders
+which they should commit on th
+packet's header, type: A, seq: 44
+packet's message: ack
+Full packet: A44ack
+timeout: no events
+Packet received from server: FOR protecting them, by a mock Trial, from Punishment for any Murders
+which they should commit on th
+Duplicate packet, do nothing
+Packet received from server: udiciary Powers.
+
+HE has made Judges dependent on his Will alone, for the Tenure of
+their Offices, a
+Duplicate packet, do nothing
+timeout: no events
+timeout: no events
+timeout: no events
+Packet received from server: e Inhabitants of these States:
+
+FOR cutting off our Trade with all Parts of the World:
+
+FOR imposing
+packet's header, type: A, seq: 45
+packet's message: ack
+Full packet: A45ack
+timeout: no events
+Packet received from server: e Inhabitants of these States:
+
+FOR cutting off our Trade with all Parts of the World:
+
+FOR imposing
+Duplicate packet, do nothing
+Packet received from server:  Taxes on us without our Consent:
+
+FOR depriving us, in many Cases, of the Benefits of Trial by Jury
+packet's header, type: A, seq: 46
+packet's message: ack
+Full packet: A46ack
+Packet received from server: States; for that
+Purpose obstructing the Laws for Naturalization of Foreigners;
+refusing to pass oth
+Duplicate packet, do nothing
+timeout: no events
+Packet received from server: er the Military independent of and superior to
+the Civil Power.
+
+HE has combined with others to subj
+Duplicate packet, do nothing
+Packet received from server: :
+
+FOR transporting us beyond Seas to be tried for pretended Offences:
+
+FOR abolishing the free Syst
+packet's header, type: A, seq: 47
+packet's message: ack
+Full packet: A47ack
+timeout: no events
+Packet received from server: em of English Laws in a neighbouring
+Province, establishing therein an arbitrary Government, and enl
+packet's header, type: A, seq: 48
+packet's message: ack
+Full packet: A48ack
+Packet received from server: ent to
+their Acts of pretended Legislation:
+
+FOR quartering large Bodies of Armed Troops among us:
+
+
+Duplicate packet, do nothing
+Packet received from server: arging
+its Boundaries, so as to render it at once an Example and fit
+Instrument for introducing the 
+packet's header, type: A, seq: 49
+packet's message: ack
+Full packet: A49ack
+timeout: no events
+Packet received from server: e Inhabitants of these States:
+
+FOR cutting off our Trade with all Parts of the World:
+
+FOR imposing
+Duplicate packet, do nothing
+Packet received from server: same absolute Rule into these Colonies:
+
+FOR taking away our Charters, abolishing our most valuable 
+packet's header, type: A, seq: 50
+packet's message: ack
+Full packet: A50ack
+Packet received from server: e Inhabitants of these States:
+
+FOR cutting off our Trade with all Parts of the World:
+
+FOR imposing
+Duplicate packet, do nothing
+Packet received from server: same absolute Rule into these Colonies:
+
+FOR taking away our Charters, abolishing our most valuable 
+Duplicate packet, do nothing
+Packet received from server: Laws, and
+altering fundamentally the Forms of our Governments:
+
+FOR suspending our own Legislatures,
+packet's header, type: A, seq: 51
+packet's message: ack
+Full packet: A51ack
+Packet received from server: e Inhabitants of these States:
+
+FOR cutting off our Trade with all Parts of the World:
+
+FOR imposing
+Duplicate packet, do nothing
+Packet received from server:  and declaring themselves invested
+with Power to legislate for us in all Cases whatsoever.
+
+HE has a
+packet's header, type: A, seq: 52
+packet's message: ack
+Full packet: A52ack
+timeout: no events
+Packet received from server: bdicated Government here, by declaring us out of his
+Protection, and waging War against us.
+
+HE has 
+packet's header, type: A, seq: 53
+packet's message: ack
+Full packet: A53ack
+timeout: no events
+Packet received from server: bdicated Government here, by declaring us out of his
+Protection, and waging War against us.
+
+HE has 
+Duplicate packet, do nothing
+Packet received from server:  Taxes on us without our Consent:
+
+FOR depriving us, in many Cases, of the Benefits of Trial by Jury
+Duplicate packet, do nothing
+Packet received from server: :
+
+FOR transporting us beyond Seas to be tried for pretended Offences:
+
+FOR abolishing the free Syst
+Duplicate packet, do nothing
+Packet received from server: plundered our Seas, ravaged our Coasts, burnt our Towns, and
+destroyed the Lives of our People.
+
+HE 
+packet's header, type: A, seq: 54
+packet's message: ack
+Full packet: A54ack
+timeout: no events
+Packet received from server: is, at this Time, transporting large Armies of foreign Mercenaries
+to complete the Works of Death, D
+packet's header, type: A, seq: 55
+packet's message: ack
+Full packet: A55ack
+timeout: no events
+Packet received from server: is, at this Time, transporting large Armies of foreign Mercenaries
+to complete the Works of Death, D
+Duplicate packet, do nothing
+Packet received from server: esolation, and Tyranny, already begun
+with Circumstances of Cruelty and Perfidy, scarcely paralleled
+packet's header, type: A, seq: 56
+packet's message: ack
+Full packet: A56ack
+timeout: no events
+Packet received from server: esolation, and Tyranny, already begun
+with Circumstances of Cruelty and Perfidy, scarcely paralleled
+Duplicate packet, do nothing
+Packet received from server: em of English Laws in a neighbouring
+Province, establishing therein an arbitrary Government, and enl
+Duplicate packet, do nothing
+Packet received from server:  in the
+most barbarous Ages, and totally unworthy the Head of a civilized
+Nation.
+
+HE has constraine
+packet's header, type: A, seq: 57
+packet's message: ack
+Full packet: A57ack
+Packet received from server:  in the
+most barbarous Ages, and totally unworthy the Head of a civilized
+Nation.
+
+HE has constraine
+Duplicate packet, do nothing
+Packet received from server: d our Fellow-Citizens, taken Captive on the high
+Seas, to bear Arms against their Country, to become
+packet's header, type: A, seq: 58
+packet's message: ack
+Full packet: A58ack
+timeout: no events
+Packet received from server:  the Executioners
+of their Friends and Brethren, or to fall themselves by their Hands.
+
+HE has excit
+packet's header, type: A, seq: 59
+packet's message: ack
+Full packet: A59ack
+timeout: no events
+Packet received from server:  the Executioners
+of their Friends and Brethren, or to fall themselves by their Hands.
+
+HE has excit
+Duplicate packet, do nothing
+Packet received from server: ed domestic Insurrections amongst us, and has endeavoured
+to bring on the Inhabitants of our Frontie
+packet's header, type: A, seq: 60
+packet's message: ack
+Full packet: A60ack
+timeout: no events
+Packet received from server: ed domestic Insurrections amongst us, and has endeavoured
+to bring on the Inhabitants of our Frontie
+Duplicate packet, do nothing
+Packet received from server: rs, the merciless Indian
+Savages, whose known Rule of Warfare, is an undistinguished
+Destruction, of
+packet's header, type: A, seq: 61
+packet's message: ack
+Full packet: A61ack
+timeout: no events
+Packet received from server: rs, the merciless Indian
+Savages, whose known Rule of Warfare, is an undistinguished
+Destruction, of
+Duplicate packet, do nothing
+Packet received from server: plundered our Seas, ravaged our Coasts, burnt our Towns, and
+destroyed the Lives of our People.
+
+HE 
+Duplicate packet, do nothing
+Packet received from server:  all Ages, Sexes, and Conditions.
+
+IN every Stage of these Oppressions we have Petitioned for Redres
+packet's header, type: A, seq: 62
+packet's message: ack
+Full packet: A62ack
+timeout: no events
+Packet received from server: s in
+the most humble Terms: Our repeated Petitions have been answered only
+by repeated Injury. A Pri
+packet's header, type: A, seq: 63
+packet's message: ack
+Full packet: A63ack
+timeout: no events
+Packet received from server: s in
+the most humble Terms: Our repeated Petitions have been answered only
+by repeated Injury. A Pri
+Duplicate packet, do nothing
+Packet received from server: nce, whose Character is thus marked by every
+Act which may define a Tyrant, is unfit to be the Ruler
+packet's header, type: A, seq: 64
+packet's message: ack
+Full packet: A64ack
+timeout: no events
+Packet received from server: nce, whose Character is thus marked by every
+Act which may define a Tyrant, is unfit to be the Ruler
+Duplicate packet, do nothing
+Packet received from server:  of a free
+People.
+
+NOR have we been wanting in Attentions to our British Brethren. We
+have warned t
+packet's header, type: A, seq: 65
+packet's message: ack
+Full packet: A65ack
+timeout: no events
+Packet received from server:  of a free
+People.
+
+NOR have we been wanting in Attentions to our British Brethren. We
+have warned t
+Duplicate packet, do nothing
+Packet received from server: hem, from Time to Time, of Attempts by their Legislature
+to extend an unwarrantable Jurisdiction ove
+packet's header, type: A, seq: 66
+packet's message: ack
+Full packet: A66ack
+timeout: no events
+Packet received from server: r us. We have reminded them
+of the Circumstances of our Emigration and Settlement here. We have
+appe
+packet's header, type: A, seq: 67
+packet's message: ack
+Full packet: A67ack
+timeout: no events
+Packet received from server: r us. We have reminded them
+of the Circumstances of our Emigration and Settlement here. We have
+appe
+Duplicate packet, do nothing
+Packet received from server: aled to their native Justice and Magnanimity, and we have conjured
+them by the Ties of our common Ki
+packet's header, type: A, seq: 68
+packet's message: ack
+Full packet: A68ack
+timeout: no events
+Packet received from server: aled to their native Justice and Magnanimity, and we have conjured
+them by the Ties of our common Ki
+Duplicate packet, do nothing
+Packet received from server: ndred to disavow these Usurpations,
+which would inevitably interrupt our Connexions and
+Corresponden
+packet's header, type: A, seq: 69
+packet's message: ack
+Full packet: A69ack
+timeout: no events
+Packet received from server: ce. They too have been deaf to the Voice of Justice and of
+Consanguinity. We must, therefore, acquie
+packet's header, type: A, seq: 70
+packet's message: ack
+Full packet: A70ack
+timeout: no events
+Packet received from server: ce. They too have been deaf to the Voice of Justice and of
+Consanguinity. We must, therefore, acquie
+Duplicate packet, do nothing
+Packet received from server:  all Ages, Sexes, and Conditions.
+
+IN every Stage of these Oppressions we have Petitioned for Redres
+Duplicate packet, do nothing
+Packet received from server: sce in the Necessity, which
+denounces our Separation, and hold them, as we hold the Rest of
+Mankind,
+packet's header, type: A, seq: 71
+packet's message: ack
+Full packet: A71ack
+timeout: no events
+Packet received from server:  Enemies in War, in Peace Friends.
+
+WE, therefore, the Representatives of the UNITED STATES OF AMERI
+packet's header, type: A, seq: 72
+packet's message: ack
+Full packet: A72ack
+timeout: no events
+Packet received from server:  Enemies in War, in Peace Friends.
+
+WE, therefore, the Representatives of the UNITED STATES OF AMERI
+Duplicate packet, do nothing
+Packet received from server: CA, in
+GENERAL CONGRESS Assembled, appealing to the Supreme Judge of the
+World for the Rectitude of 
+packet's header, type: A, seq: 73
+packet's message: ack
+Full packet: A73ack
+timeout: no events
+timeout: no events
+Packet received from server: our Intentions, do, in the Name, and by
+Authority of the good People of these Colonies, solemnly Pub
+packet's header, type: A, seq: 74
+packet's message: ack
+Full packet: A74ack
+timeout: no events
+Packet received from server: our Intentions, do, in the Name, and by
+Authority of the good People of these Colonies, solemnly Pub
+Duplicate packet, do nothing
+Packet received from server: lish and
+Declare, That these United Colonies are, and of Right ought to be,
+FREE AND INDEPENDENT STA
+packet's header, type: A, seq: 75
+packet's message: ack
+Full packet: A75ack
+timeout: no events
+Packet received from server: lish and
+Declare, That these United Colonies are, and of Right ought to be,
+FREE AND INDEPENDENT STA
+Duplicate packet, do nothing
+Packet received from server: TES; that they are absolved from all
+Allegiance to the British Crown, and that all political Connexi
+packet's header, type: A, seq: 76
+packet's message: ack
+Full packet: A76ack
+timeout: no events
+Packet received from server: ndred to disavow these Usurpations,
+which would inevitably interrupt our Connexions and
+Corresponden
+Duplicate packet, do nothing
+timeout: no events
+Packet received from server: on
+between them and the State of Great-Britain, is, and ought to be,
+totally dissolved; and that as 
+packet's header, type: A, seq: 77
+packet's message: ack
+Full packet: A77ack
+Packet received from server: sce in the Necessity, which
+denounces our Separation, and hold them, as we hold the Rest of
+Mankind,
+Duplicate packet, do nothing
+Packet received from server: on
+between them and the State of Great-Britain, is, and ought to be,
+totally dissolved; and that as 
+Duplicate packet, do nothing
+timeout: no events
+timeout: no events
+Packet received from server: FREE AND INDEPENDENT STATES, they have
+full Power to levy War, conclude Peace, contract Alliances, e
+packet's header, type: A, seq: 78
+packet's message: ack
+Full packet: A78ack
+timeout: no events
+Packet received from server: stablish
+Commerce, and to do all other Acts and Things which INDEPENDENT STATES
+may of Right do. And
+packet's header, type: A, seq: 79
+packet's message: ack
+Full packet: A79ack
+Packet received from server: CA, in
+GENERAL CONGRESS Assembled, appealing to the Supreme Judge of the
+World for the Rectitude of 
+Duplicate packet, do nothing
+Packet received from server: our Intentions, do, in the Name, and by
+Authority of the good People of these Colonies, solemnly Pub
+Duplicate packet, do nothing
+Packet received from server:  for the Support of this Declaration, with a firm
+Reliance on the Protection of DIVINE PROVIDENCE, w
+packet's header, type: A, seq: 80
+packet's message: ack
+Full packet: A80ack
+Packet received from server: hem, from Time to Time, of Attempts by their Legislature
+to extend an unwarrantable Jurisdiction ove
+Duplicate packet, do nothing
+Packet received from server: e mutually pledge to
+each other our Lives, our Fortunes, and our sacred Honour.
+
+packet's header, type: A, seq: 81
+packet's message: ack
+Full packet: A81ack
+timeout: no events
+Packet received from server: I'm Done
+I'm Done

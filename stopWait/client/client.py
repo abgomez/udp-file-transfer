@@ -19,9 +19,9 @@ from select import *
 serverAddr = ('localhost', 50000)                                 #default server address
 #define header attributes.
 pckType = 0x20                                                    #packet type
-pckSeq = 0x00                                                     #sequence number
+pckSeq = 0                                                        #sequence number
 clientSocket = socket(AF_INET, SOCK_DGRAM)                        #socket to communicate
-packet = bytearray()                                               #packet to send
+packet = bytearray()                                              #packet to send
 header = bytearray()                                              #packet's header
 message = bytearray()                                             #packet's data block
 mode = 'u'                                                        #client mode, can be get or put
@@ -29,6 +29,7 @@ connection = 0                                                    #identify conn
                                                                   #values: 0 = not active, 1 = active
 verbose = 0                                                       #verbose mode
 fileName = ""                                                     #file to request
+pckDic = {}                                                       #dictionary to save data blocks
 
 #display correct usage of parameters
 def usage():
@@ -88,17 +89,19 @@ def procHeader():
         elif mode == 'p':
             pckType = 0x50
     else: 
-        if lastPck():
-            pckType = 0x46
-        else:
-            if mode == 'g': 
-                pckType = 0x41
-            elif mode == 'p':
-                pckType = 0x44
+        if mode == 'g':
+            pckType = 0x41 #send ack, type A
+       # if 1==2:#lastPck():
+       #     pckType = 0x46
+       # else:
+       #     if mode == 'g': 
+                #pckType = 0x41
+       #     elif mode == 'p':
+       #         pckType = 0x44
             
     #transform type and header into an array of bytes
     header = bytearray([pckType, pckSeq])
-    if verbose: print "packet's header, type: %c, seq: %x" % (header[0], header[1])
+    if verbose: print "packet's header, type: %c, seq: %d" % (header[0], header[1])
 
 #procPckData, this function will create the body of our packet. The client is able to send three types of packages
 #if in get mode, it will send an ack for each message received.
@@ -124,6 +127,7 @@ def procPckData():
 def sendMsg():
     #we want to update global variables
     global packet
+    global connection
 
     #process header
     procHeader()
@@ -131,18 +135,37 @@ def sendMsg():
     procPckData()
     #concatenate header and message
     packet = header+message
-    if verbose: print "Full packet: %s" % packet
+    if verbose: print "Full packet: %c%d%s" % (packet[0], packet[1], packet[2:])
     
     #send message to server
-    print "Ready to send data..."
     clientSocket.sendto(packet, serverAddr)
-
+    connection = 1
 
     
 def processMsg(sock):
+    global pckSeq
+    global pckDic
     returnMsg, serverAddrPort = sock.recvfrom(2048)
-    print "Return Msg: %s" % (repr(returnMsg))
-    sock.sendto(message, serverAddr)
+    if verbose: print "Packet received from server: %s" % (returnMsg[2:])
+    #identify type of packet
+    expectedPck = pckSeq + 1
+    if returnMsg[0] == 'D':
+        #figure out if expected message or duplicate.
+        if expectedPck == ord(returnMsg[1]):
+            #expected packet, save message
+            pckDic[pckSeq] = returnMsg[2:]
+            pckSeq = ord(returnMsg[1])
+            #print "%d" % pckSeq
+            sendMsg()
+        else:
+            if verbose: print "Duplicate packet, do nothing"
+    elif returnMsg[0] == 'F':
+        print "End of file, creating local copy....." #TODO function to create file
+        outFile = open(fileName, 'w+')
+        for line in pckDic.keys():
+            outFile.write('%s' % pckDic[line])
+        print "FIle created in current directory: %s" % fileName
+        sys.exit(1)
 
     
 ###Main logic start here###
@@ -155,20 +178,22 @@ if mode == 'u':
 sendMsg()
 #############test logic
 #message = "hello from client"
-#readSockFunc = {}
-#writeSockFunc = {}
-#errorSockFunc = {}
-#timeout = 5
-#readSockFunc[clientSocket] = processMsg 
+readSockFunc = {}
+writeSockFunc = {}
+errorSockFunc = {}
+timeout = .1
+readSockFunc[clientSocket] = processMsg 
 
 #clientSocket.sendto(message, serverAddr)
-#print "ready to communicate"
-#while 1:
-#    readRdySet, writeRdySet, errorRdySet = select(readSockFunc.keys(), writeSockFunc.keys(), errorSockFunc.keys(), timeout)
-#    if not readRdySet and not writeRdySet and not errorRdySet:
-#        print "timeout: no events"
-#    for sock in readRdySet:
-#        readSockFunc[sock](sock)
+print "ready to communicate"
+while 1:
+    readRdySet, writeRdySet, errorRdySet = select(readSockFunc.keys(), writeSockFunc.keys(), errorSockFunc.keys(), timeout)
+    if not readRdySet and not writeRdySet and not errorRdySet:
+        print "timeout: no events"
+        #ADD LOGIC TO KILL CLIENT AFTER X TIMES OF RESEND
+        clientSocket.sendto(packet, serverAddr)
+    for sock in readRdySet:
+        readSockFunc[sock](sock)
 #clientSocket.sendto(message, serverAddr)
 #returnMsg, serverAddrPort = clientSocket.recvfrom(2048)
 #print "Return Msg: %s" % (repr(returnMsg))
