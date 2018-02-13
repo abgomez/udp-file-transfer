@@ -23,16 +23,6 @@ ERROR_FNF_PACKET = 0x81
 ERROR_PACKET = 0x82
 
 
-def createOrGetClientEntry(client):
-    key = client[0]+","+client[1]
-    if key not in clientDic:
-        clientDic[key] = {
-            'timeout': 100,
-            'seq': 0
-        }
-    return clientDic
-
-
 def sendData():
     global totalPck
     global packetDic
