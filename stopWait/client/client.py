@@ -161,8 +161,6 @@ def processMsg(sock):
     #identify type of packet
     expectedPck = pckSeq + 1
     type_msg = ord(returnMsg[0])
-    if verbose: print "Packet header from server: %s" % (type_msg)
-    if verbose: print "Packet header from server: %s" % (ERROR_FNF_PACKET)
     # we got a mid packet
     if type_msg == MID_PACKET:
         #figure out if expected message or duplicate.
