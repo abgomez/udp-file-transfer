@@ -6,9 +6,9 @@
 #It uses datagrams to transfer data to the server. It has two main fucntions: get and put.
 #The function get request a file from the server, the file is saved in a local copy.
 #    Errors: If the files doesn't exists the server will send an error message.
-#The function put sends a request to the server to save a new file or an existing file. 
+#The function put sends a request to the server to save a new file or an existing file.
 #Parameters: server address,  following the following format: host:port
-#If a package is lost or delayed the client will implement a retransmit-on-timeout policy. 
+#If a package is lost or delayed the client will implement a retransmit-on-timeout policy.
 
 import sys, re, os
 from socket import *
@@ -30,6 +30,16 @@ connection = 0                                                    #identify conn
 verbose = 0                                                       #verbose mode
 fileName = ""                                                     #file to request
 pckDic = {}                                                       #dictionary to save data blocks
+# packets
+LAST_PACKET = 0x47
+MID_PACKET = 0x44
+# file not found
+ERROR_FNF_PACKET = 0x81
+ERROR_PACKET = 0x82
+
+
+
+
 
 #display correct usage of parameters
 def usage():
@@ -68,10 +78,10 @@ try:
         else:
             print "unexpected parameter %s" % args[0]
             usage();
-except Exception as e: 
+except Exception as e:
     print "Error parsing arguments %s" % (e)
     usage()
-    
+
 #function procHeader, this function will create the header of all messages.
 #the header is define by two bytes, the first byte is the type: get, put, ack, data, finish, and error.
 #the second byte is the sequence of data or ack. all other types have a 0 sequence.
@@ -84,21 +94,21 @@ def procHeader():
 
     #if connection is zero we are sending the first request
     if connection == 0:
-        if mode == 'g': 
+        if mode == 'g':
             pckType = 0x47
         elif mode == 'p':
             pckType = 0x50
-    else: 
+    else:
         if mode == 'g':
             pckType = 0x41 #send ack, type A
        # if 1==2:#lastPck():
        #     pckType = 0x46
        # else:
-       #     if mode == 'g': 
+       #     if mode == 'g':
                 #pckType = 0x41
        #     elif mode == 'p':
        #         pckType = 0x44
-            
+
     #transform type and header into an array of bytes
     header = bytearray([pckType, pckSeq])
     if verbose: print "packet's header, type: %c, seq: %d" % (header[0], header[1])
@@ -107,7 +117,7 @@ def procHeader():
 #if in get mode, it will send an ack for each message received.
 #if inf put mode, it could send a data packet with the file information, or it could send a finish packet.
 #the client can also send the initial request.
-def procPckData():    
+def procPckData():
     #we want to update global variables
     global message
     #local variable
@@ -136,20 +146,25 @@ def sendMsg():
     #concatenate header and message
     packet = header+message
     if verbose: print "Full packet: %c%d%s" % (packet[0], packet[1], packet[2:])
-    
+
     #send message to server
     clientSocket.sendto(packet, serverAddr)
     connection = 1
 
-    
+
 def processMsg(sock):
     global pckSeq
     global pckDic
     returnMsg, serverAddrPort = sock.recvfrom(2048)
+    if verbose: print "Packet header from server: %s" % (returnMsg[0])
     if verbose: print "Packet received from server: %s" % (returnMsg[2:])
     #identify type of packet
     expectedPck = pckSeq + 1
-    if returnMsg[0] == 'D':
+    type_msg = ord(returnMsg[0])
+    if verbose: print "Packet header from server: %s" % (type_msg)
+    if verbose: print "Packet header from server: %s" % (ERROR_FNF_PACKET)
+    # we got a mid packet
+    if type_msg == MID_PACKET:
         #figure out if expected message or duplicate.
         if expectedPck == ord(returnMsg[1]):
             #expected packet, save message
@@ -159,22 +174,30 @@ def processMsg(sock):
             sendMsg()
         else:
             if verbose: print "Duplicate packet, do nothing"
-    elif returnMsg[0] == 'F':
+    # we got the last packet
+    elif type_msg == LAST_PACKET:
         print "End of file, creating local copy....." #TODO function to create file
         outFile = open(fileName, 'w+')
         for line in pckDic.keys():
             outFile.write('%s' % pckDic[line])
         print "FIle created in current directory: %s" % fileName
         sys.exit(1)
+    # we got a file not found packet
+    elif type_msg == ERROR_FNF_PACKET:
+        print "File not found on server: %s" % fileName
+        sys.exit(-1)
+    else:
+        print "Msg header not recognized"
+        sys.exit(-1)
 
-    
+
 ###Main logic start here###
 #verify parms
 if mode == 'u':
     print "Incorrect use of client, you need to use get or put function"
     usage()
     sys.exit(1)
-    
+
 sendMsg()
 #############test logic
 #message = "hello from client"
@@ -182,7 +205,7 @@ readSockFunc = {}
 writeSockFunc = {}
 errorSockFunc = {}
 timeout = .1
-readSockFunc[clientSocket] = processMsg 
+readSockFunc[clientSocket] = processMsg
 
 #clientSocket.sendto(message, serverAddr)
 print "ready to communicate"
