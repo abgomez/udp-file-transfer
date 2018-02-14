@@ -16,7 +16,7 @@ from select import *
 
 #Global variables
 
-serverAddr = ('localhost', 50000)                                 #default server address
+serverAddr = ('localhost', 50001)                                 #default server address
 #define header attributes.
 pckType = 0x20                                                    #packet type
 pckSeq = 0                                                        #sequence number
@@ -30,6 +30,8 @@ connection = 0                                                    #identify conn
 verbose = 0                                                       #verbose mode
 fileName = ""                                                     #file to request
 pckDic = {}                                                       #dictionary to save data blocks
+totalPck = 0
+#packetToServer = bytearray()
 
 #display correct usage of parameters
 def usage():
@@ -112,12 +114,18 @@ def procPckData():
     global message
     #local variable
     msg = ""
-
-    if mode == 'g':
-        if connection == 0:
-            msg = fileName
-        else:
+    #The first message is always the file name
+    if connection == 0:
+        msg = fileName
+    else:
+        if mode == 'g':
             msg = "ack"
+    #if mode == 'g':
+    #    if connection == 0:
+    #        msg = fileName
+    #    else:
+    #        msg = "ack"
+    print mode
     message = bytearray(msg, 'utf-8')
     if verbose: print "packet's message: %s" % message
 
@@ -140,13 +148,51 @@ def sendMsg():
     #send message to server
     clientSocket.sendto(packet, serverAddr)
     connection = 1
+    
+def sendNextBlock():
+    global totalPacket
+    global pckDic
+    global pckSeq
+    global pckToServer
+    if pckSeq == 0:
+        header = bytearray([0x44, 1])
+        inFile = open(fileName)
+        text = inFile.read()
+        textArray = bytearray(text, 'utf-8')
+        numberOfPackets = len(textArray)/100
+        if len(textArray) % 100 == 0:
+            totalPacket = numberOfPackets
+        else:
+            totalPacket = numberOfPackets + 1
+        stIndex = 0
+        endIndex = 100
+        seqNum = 1
+        for packet in range(1, totalPacket):
+            if packet == 1:
+                pckDic[seqNum] = textArray[0:endIndex]
+            else:
+                pckDic[seqNum] = textArray[stIndex:endIndex]
+            seqNum += 1
+            stIndex = endIndex
+            endIndex += 100
+        pckDic[seqNum] = textArray[stIndex:]
+        pckToServer = header+pckDic[1]
+    if pckSeq == totalPacket or pckSeq == 99:
+        header = bytearray([0x46, 99])
+        msg = bytearray("I'm Done", 'utf-8')
+        pckToServer = header+msg
+    else:
+        pckSeq +=1
+        header = bytearray([0x44, pckSeq])
+        pckToServer = header+pckDic[pckSeq]
 
+    clientSocket.sendto(pckToServer, serverAddr)
     
 def processMsg(sock):
     global pckSeq
     global pckDic
     returnMsg, serverAddrPort = sock.recvfrom(2048)
-    if verbose: print "Packet received from server: %s" % (returnMsg[2:])
+    if verbose: print "Packet received from server: %s, seq: %d" % (returnMsg[2:], ord(returnMsg[1]))
     #identify type of packet
     expectedPck = pckSeq + 1
     if returnMsg[0] == 'D':
@@ -166,6 +212,8 @@ def processMsg(sock):
             outFile.write('%s' % pckDic[line])
         print "FIle created in current directory: %s" % fileName
         sys.exit(1)
+    elif returnMsg[0] == 'A':
+        sendNextBlock()
 
     
 ###Main logic start here###
@@ -181,7 +229,7 @@ sendMsg()
 readSockFunc = {}
 writeSockFunc = {}
 errorSockFunc = {}
-timeout = .1
+timeout = 10
 readSockFunc[clientSocket] = processMsg 
 
 #clientSocket.sendto(message, serverAddr)

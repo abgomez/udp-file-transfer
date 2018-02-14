@@ -2,6 +2,7 @@
 import sys, os
 from socket import *
 from select import select
+from enum import Enum
 
 # default params
 upperServerAddr = ("", 50001)   # any addr, port 50,000
@@ -12,7 +13,15 @@ message = bytearray()
 totalPck= 0                                           #number of packets that we need to send to client.
 packetDic = {}                                         #directory to save all pcks from file
 clientAddrPort = 50005
-
+lastPacket = 0
+verbose = 1                                                      #verbose mode
+GET = 'G'                                                        #macro definitions to identify packages
+PUT = 'P'
+ACK = 'A'
+DTA = 'D'
+FIN = 'F'
+ERR = 'E'
+        
 def sendData():
         global totalPck
         global packetDic
@@ -61,54 +70,77 @@ def sendData():
                 pckToClient = header+packetDic[pckSeq]
                 sock.sendto(pckToClient, clientAddrPort)
 
-def processMsg(sock):
+def sendAck():
+        global totalPck
+        global packetDic
+        global pckSeq
+        #send ack for all packages
+        header = bytearray([0x41, pckSeq])
+        msg = bytearray("ack", 'utf-8')
+        pckToClient = header+msg
+        sock.sendto(pckToClient, clientAddrPort)
+        if pckType == 'D': #save packet to dictionary
+                #figure out if we receive a valid packet
+                expectedPacket = lastPacket + 1
+                if expectedPacket == pckSeq:
+                        packetDic[pckSeq] = message
+                else:
+                        print "Duplicate Packat Discarded"
+        for key in packetDic.keys():
+                print "key: %d, message: %s" % (key, packetDic[key])
+
+        
+#processClientMessage, the function will handle all incoming packages
+#It identifies the type of packet that the client sent, and it process the different responses
+def processClientMessage(sock):
+        #Global variables to control de sequence of packages
         global pckType
         global pckSeq
         global message
         global clientAddrPort
-        packet, clientAddrPort = sock.recvfrom(2048)
-	print "from %s: rec'd '%c%d%s'" % (repr(clientAddrPort), packet[0], ord(packet[1]), packet[2:]) #ADD VERBOSE IF
+        global lastPacket
+
+        #get client's packet
+        clientPacket, clientAddrPort = sock.recvfrom(2048)
+        if verbose:
+                print "From: %s " % (repr(clientAddrPort)) 
+                print "Packet: %c%d%s" % (clientPacket[0], ord(clientPacket[1]), clientPacket[2:])
+
+        #save las packet sequence
+        lastPacket = pckSeq
         
         #strip packet
-        pckType = packet[0]
-        pckSeq = ord(packet[1])
-        message = packet[2:]
-        #REMOVE PRINTS BEOFR SUBMIT
-        print "packet type: %c" % pckType
-        print "packet seq: %d" % pckSeq
-        print "message: %s" % message
+        pckType = clientPacket[0]
+        pckSeq = ord(clientPacket[1]) #convert sequence to number
+        message = clientPacket[2:]
+        if verbose:
+            print "Packet type: %c" % pckType
+            print "Packet seq: %d" % pckSeq
+            print "Message: %s" % message
         
         #identify packet type
-        if pckType == 'G' or pckType == 'A':
+        if pckType ==  GET or pckType == ACK:
                 sendData()
-                ##if pckSeq == '0':
-                        #sendAck()
-                #else:
-                #        sendNxtBlock()
-        else:
-                print "no implemented yet"
+        elif pckType == PUT or pckType == DTA or pckType == FIN:
+               sendAck() 
     
     
-#def uppercase(sock):
-#	message, clientAddrPort = sock.recvfrom(2048)
-#	print "from %s: rec'd '%s'" % (repr(clientAddrPort), message)
-#	modifiedMessage = "ok"#message.upper()
-#	sock.sendto(modifiedMessage, clientAddrPort)
 	
-
-upperServerSocket = socket(AF_INET, SOCK_DGRAM)
-upperServerSocket.bind(upperServerAddr)
-upperServerSocket.setblocking(False)
+#### Main Logic starts here ###
+serverSocket = socket(AF_INET, SOCK_DGRAM)
+serverSocket.bind(upperServerAddr)
+serverSocket.setblocking(False)
 
 readSockFunc = {}               # dictionaries from socket to function 
 writeSockFunc = {}
 errorSockFunc = {}
-timeout = 5                     # seconds
+timeout =  10                    # seconds
 
-readSockFunc[upperServerSocket] = processMsg
+readSockFunc[serverSocket] = processClientMessage
 
+##TODO functionality to change timeout on fly
 print "ready to receive"
-while 1:
+while True:
 	readRdySet, writeRdySet, errorRdySet = select(readSockFunc.keys(),
                                                       writeSockFunc.keys(), 
                                                       errorSockFunc.keys(),
