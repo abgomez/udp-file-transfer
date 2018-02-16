@@ -2,7 +2,7 @@
 import sys, os
 from socket import *
 from select import select
-from enum import Enum
+#from enum import Enum
 
 # default params
 upperServerAddr = ("", 50001)   # any addr, port 50,000
@@ -22,7 +22,7 @@ DTA = 'D'
 FIN = 'F'
 ERR = 'E'
         
-def sendData():
+def sendNextBlock():
         global totalPck
         global packetDic
         global pckSeq
@@ -53,41 +53,59 @@ def sendData():
                             stIndex = endIndex
                             endIndex += 100
                     packetDic[seqNum] = textArray[stIndex:]
-                    #print seqNum
-                    #print "%s" % packetDic[80]
-                    #print "%s" % packetDic[81]
 
         #sent response to client,
         #check if we are done, if not send next packet
         if pckSeq == totalPck:
-                header = bytearray([0x46, 99])
+                header = bytearray([FIN, 255]) #bytes only allow a range of 0 <= x < 256
                 msg = bytearray("I'm Done", 'utf-8')
                 pckToClient = header+msg
                 sock.sendto(pckToClient, clientAddrPort)
         else:
                 pckSeq += 1
-                header = bytearray([0x44, pckSeq])
+                header = bytearray([DTA, pckSeq])
                 pckToClient = header+packetDic[pckSeq]
                 sock.sendto(pckToClient, clientAddrPort)
+                if verbose: print "key: %d, message: %s" % (pckSeq, packetDic[pckSeq])
 
 def sendAck():
         global totalPck
         global packetDic
         global pckSeq
+        global lastPacket
+        global fileName
+
         #send ack for all packages
-        header = bytearray([0x41, pckSeq])
+        header = bytearray([ACK, pckSeq])
         msg = bytearray("ack", 'utf-8')
         pckToClient = header+msg
         sock.sendto(pckToClient, clientAddrPort)
-        if pckType == 'D': #save packet to dictionary
+        
+        print "SEQ %d" % pckSeq
+        print "last %d" % lastPacket
+
+
+        if pckType == PUT:
+                fileName = message
+        elif pckType == DTA: #save packet to dictionary
                 #figure out if we receive a valid packet
                 expectedPacket = lastPacket + 1
                 if expectedPacket == pckSeq:
                         packetDic[pckSeq] = message
+                        #save las packet sequence
+                        lastPacket = pckSeq
                 else:
-                        print "Duplicate Packat Discarded"
-        for key in packetDic.keys():
-                print "key: %d, message: %s" % (key, packetDic[key])
+                        if verbose: print "Invalid Packet Discarded"
+                #if verbose: print "key: %d, message: %s" % (pckSeq, packetDic[pckSeq])
+        elif pckType == FIN:
+                if lastPacket == 255:
+                        if verbose: print "Invalid Packet Discarded"
+                else:
+                        outFile = open(fileName, 'w+')
+                        for line in packetDic.keys():
+                                outFile.write('%s' % packetDic[line])
+                        lastPacket = pckSeq
+
 
         
 #processClientMessage, the function will handle all incoming packages
@@ -104,11 +122,7 @@ def processClientMessage(sock):
         clientPacket, clientAddrPort = sock.recvfrom(2048)
         if verbose:
                 print "From: %s " % (repr(clientAddrPort)) 
-                print "Packet: %c%d%s" % (clientPacket[0], ord(clientPacket[1]), clientPacket[2:])
 
-        #save las packet sequence
-        lastPacket = pckSeq
-        
         #strip packet
         pckType = clientPacket[0]
         pckSeq = ord(clientPacket[1]) #convert sequence to number
@@ -119,14 +133,16 @@ def processClientMessage(sock):
             print "Message: %s" % message
         
         #identify packet type
-        if pckType ==  GET or pckType == ACK:
-                sendData()
+        if pckType == GET or pckType == ACK:
+                #sys.exit(1)
+                sendNextBlock()
         elif pckType == PUT or pckType == DTA or pckType == FIN:
                sendAck() 
     
     
 	
 #### Main Logic starts here ###
+#define server to connect
 serverSocket = socket(AF_INET, SOCK_DGRAM)
 serverSocket.bind(upperServerAddr)
 serverSocket.setblocking(False)
@@ -134,13 +150,13 @@ serverSocket.setblocking(False)
 readSockFunc = {}               # dictionaries from socket to function 
 writeSockFunc = {}
 errorSockFunc = {}
-timeout =  10                    # seconds
+timeout =  5                    # seconds
 
 readSockFunc[serverSocket] = processClientMessage
 
 ##TODO functionality to change timeout on fly
 print "ready to receive"
-while True:
+while 1:
 	readRdySet, writeRdySet, errorRdySet = select(readSockFunc.keys(),
                                                       writeSockFunc.keys(), 
                                                       errorSockFunc.keys(),

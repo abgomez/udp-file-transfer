@@ -16,10 +16,11 @@ from select import *
 
 #Global variables
 
-serverAddr = ('localhost', 50001)                                 #default server address
+serverAddr = ('localhost', 50000)                                 #default server address
+lastPacket = 0
 #define header attributes.
-pckType = 0x20                                                    #packet type
-pckSeq = 0                                                        #sequence number
+pckType = bytearray()                                                    #packet type
+pckSeq = bytearray()                                                       #sequence number
 clientSocket = socket(AF_INET, SOCK_DGRAM)                        #socket to communicate
 packet = bytearray()                                              #packet to send
 header = bytearray()                                              #packet's header
@@ -31,7 +32,65 @@ verbose = 0                                                       #verbose mode
 fileName = ""                                                     #file to request
 pckDic = {}                                                       #dictionary to save data blocks
 totalPck = 0
+GET = 'G'
+PUT = 'P'
+ACK = 'A'
+DTA = 'D'
+FIN = 'F'
+ERR = 'E'
 #packetToServer = bytearray()
+
+def sendAck():
+    global pckDic
+    global pckSeq
+    global lastPacket
+    global pckToServer
+
+    #figure out if we receive a valid packet        
+    expectedPck = lastPacket + 1
+    if expectedPck == pckSeq:
+
+        #send ack for all packages
+        header = bytearray([ACK, pckSeq])
+        msgToServer = bytearray("ack", 'utf-8')
+        pckToServer = header+msgToServer
+        if verbose: print "Packet to Server: %c%d%s" % (pckToServer[0], pckToServer[1], pckToServer[2:])
+        #clientSocket.sendto(pckToServer, serverAddr)
+    
+    #figure out if we receive a valid packet        
+    #expectedPck = lastPacket + 1
+        print "ex: %d" % expectedPck
+        print "las: %d" % lastPacket
+    #if expectedPck == pckSeq:
+        pckDic[pckSeq] = message
+        lastPacket = pckSeq
+        clientSocket.sendto(pckToServer, serverAddr)
+        if verbose: print "key: %d, message: %s" % (pckSeq, pckDic[pckSeq])
+    else:
+        if verbose: print "Invalid packet, do nothing"
+    
+def sendFirstMsg():
+    global lastPacket 
+    global pckToServer
+
+    if mode == 'g':
+        header = bytearray([GET, 0])
+        #msgToServer = fileName
+       # pckToServer = header+msgToServer
+       # if verbose: print "Full packet: %c%d%s" % (pckToServer[0], pckToServer[1], pckToServer[2:])
+       # clientSocket.sendto(pckToServer, serverAddr)
+       # lastPacket = 0
+        #sys.exit(1)
+    else:
+        header = bytearray([PUT, 0])
+        #msgToServer = fileName
+
+    msgToServer = fileName
+    pckToServer = header+msgToServer
+    if verbose: print "Full packet: %c%d%s" % (pckToServer[0], pckToServer[1], pckToServer[2:])
+    clientSocket.sendto(pckToServer, serverAddr)
+    lastPacket = 0
+
 
 #display correct usage of parameters
 def usage():
@@ -154,8 +213,10 @@ def sendNextBlock():
     global pckDic
     global pckSeq
     global pckToServer
+    global lastPacket
+
     if pckSeq == 0:
-        header = bytearray([0x44, 1])
+        header = bytearray([DTA, 1])
         inFile = open(fileName)
         text = inFile.read()
         textArray = bytearray(text, 'utf-8')
@@ -177,42 +238,57 @@ def sendNextBlock():
             endIndex += 100
         pckDic[seqNum] = textArray[stIndex:]
         pckToServer = header+pckDic[1]
-    if pckSeq == totalPacket or pckSeq == 99:
-        header = bytearray([0x46, 99])
+        lastPacket = 1
+        clientSocket.sendto(pckToServer, serverAddr)
+        print "printat se 0 pack: %s" % pckToServer
+    elif pckSeq == totalPacket:
+        header = bytearray([FIN, 255])
         msg = bytearray("I'm Done", 'utf-8')
         pckToServer = header+msg
+        clientSocket.sendto(pckToServer, serverAddr)
+    elif pckSeq == 255:
+        sys.exit(1)
     else:
-        pckSeq +=1
-        header = bytearray([0x44, pckSeq])
-        pckToServer = header+pckDic[pckSeq]
+        expectedPck = lastPacket
+        print "ex: %d" % expectedPck
+        print "la: %d"  % lastPacket
+        if expectedPck == pckSeq:
+            pckSeq +=1
+            header = bytearray([DTA, pckSeq])
+            pckToServer = header+pckDic[pckSeq]
+            print "print pack: %s, exp %d" % (pckToServer, expectedPck)
+            lastPacket = pckSeq
+            clientSocket.sendto(pckToServer, serverAddr)
 
-    clientSocket.sendto(pckToServer, serverAddr)
-    
 def processMsg(sock):
     global pckSeq
+    global pckType
+    global message
+    global lastPacket
     global pckDic
+    
+    #retreive packet from server
     returnMsg, serverAddrPort = sock.recvfrom(2048)
     if verbose: print "Packet received from server: %s, seq: %d" % (returnMsg[2:], ord(returnMsg[1]))
-    #identify type of packet
-    expectedPck = pckSeq + 1
-    if returnMsg[0] == 'D':
-        #figure out if expected message or duplicate.
-        if expectedPck == ord(returnMsg[1]):
-            #expected packet, save message
-            pckDic[pckSeq] = returnMsg[2:]
-            pckSeq = ord(returnMsg[1])
-            #print "%d" % pckSeq
-            sendMsg()
-        else:
-            if verbose: print "Duplicate packet, do nothing"
-    elif returnMsg[0] == 'F':
-        print "End of file, creating local copy....." #TODO function to create file
+    
+    #strip packet
+    pckType = returnMsg[0]
+    pckSeq = ord(returnMsg[1])
+    message = returnMsg[2:] 
+
+    #save last packet sequence
+    #lastPacket = pckSeq
+
+    if pckType == DTA:
+        sendAck()
+    elif pckType == FIN:
+        print "End of file, creating local copy....." 
         outFile = open(fileName, 'w+')
         for line in pckDic.keys():
             outFile.write('%s' % pckDic[line])
         print "FIle created in current directory: %s" % fileName
         sys.exit(1)
-    elif returnMsg[0] == 'A':
+    elif pckType == ACK:
         sendNextBlock()
 
     
@@ -223,13 +299,13 @@ if mode == 'u':
     usage()
     sys.exit(1)
     
-sendMsg()
+sendFirstMsg()
 #############test logic
 #message = "hello from client"
 readSockFunc = {}
 writeSockFunc = {}
 errorSockFunc = {}
-timeout = 10
+timeout =  .1
 readSockFunc[clientSocket] = processMsg 
 
 #clientSocket.sendto(message, serverAddr)
@@ -239,7 +315,8 @@ while 1:
     if not readRdySet and not writeRdySet and not errorRdySet:
         print "timeout: no events"
         #ADD LOGIC TO KILL CLIENT AFTER X TIMES OF RESEND
-        clientSocket.sendto(packet, serverAddr)
+        clientSocket.sendto(pckToServer, serverAddr)
+        if verbose: print "Packet to Server on resend: %c%d%s" % (pckToServer[0], pckToServer[1], pckToServer[2:])
     for sock in readRdySet:
         readSockFunc[sock](sock)
 #clientSocket.sendto(message, serverAddr)
