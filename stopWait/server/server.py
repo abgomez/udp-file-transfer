@@ -1,140 +1,225 @@
-# udp demo simple select server -- Adrian Veliz, modified from code by
-# Eric Freudenthal
-import os
-import socket
-from socket import AF_INET, SOCK_DGRAM
+# udp demo simple select server -- Adrian Veliz, modified from code by Eric Freudenthal
+import sys, os
+from socket import *
 from select import select
+#from enum import Enum
 
 # default params
 upperServerAddr = ("", 50001)   # any addr, port 50,000
-# Global variables
+#Global variables
 pckType = bytearray()
 pckSeq = bytearray()
 message = bytearray()
-totalPck = 0  # number of packets that we need to send to client.
-packetDic = {}  # directory to save all pcks from file
+totalPacket= 0                                           #number of packets that we need to send to client.
+packetDic = {}                                         #directory to save all pcks from file
 clientAddrPort = 50005
-clientDic = {}
-# packets
-LAST_PACKET = 0x47
-MID_PACKET = 0x44
-# file not found
-ERROR_FNF_PACKET = 0x81
-ERROR_PACKET = 0x82
+lastPacket = '0'
+verbose = 1                                                      #verbose mode
+fileName = ""
+activePacket = {}
+timeoutCount = 0                                                 #determine if client is dead
+GET = 'G'                                                        #macro definitions to identify packages
+PUT = 'P'
+ACK = 'A'
+DTA = 'D'
+FIN = 'F'
+ERR = 'E'
 
+def cleanUp():
+        global inFile
+        global outFile
+        global fileName
+        global lastPacket
+        global activePacket
+        global timeoutCount
+        global pckType
 
-def sendData():
-    global totalPck
-    global packetDic
-    global pckSeq
-    if pckSeq == 0:
-        # verify files exists
+        if pckType == ACK:
+                inFile.close()
+        elif pckType == DTA:
+                outFile.close()
+        fileName = ""
+        lastPacket ='0'
+        activePacket = {}
+        timeoutCount = 0
+        if verbose: print "Refresh, ready to receive"
+        #sys.exit(1)
+
+def openFile():
+        global totalPacket
+        global packetDic
+        global pckSeq
+        global inFile
+
+        #verify files exists
         if not os.path.exists(message):
-            print "ERROR: file requested by client do not exists"
-            print "SENT ERROR MESSAGE"  # NEED TO IMPLEMENT ERROR PACKET
-            # send error message to client when file does not exist
-            header = bytearray([ERROR_FNF_PACKET, 99])
-            sock.sendto(header, clientAddrPort)
-            return
+                if verbose: print "ERROR: file requested by client do not exists"
+                header = bytearray([ERR, '0'])
+                msg = "incorrect file name my dear child"
+                pckToClient = header+msg
+                sock.sendto(pckToClient, clientAddrPort)
+                return 0
         else:
-            inFile = open(message)
-            text = inFile.read()
-            textArray = bytearray(text, 'utf-8')
-            numPcks = len(textArray)/100
-            if (len(textArray) % 100) == 0:
-                totalPck = numPcks
-            else:
-                totalPck = numPcks + 1
-            # print totalPck
-            stIndex = 0
-            endIndex = 100
-            seqNum = 1
-            for packet in range(1, totalPck):
-                if packet == 1:
-                    packetDic[seqNum] = textArray[0:endIndex]
+                inFile = open(message)
+                text = inFile.read()
+                textArray = bytearray(text, 'utf-8')
+                numPcks = len(textArray)/100
+                if (len(textArray) % 100) == 0:
+                        totalPacket = numPcks
                 else:
-                    packetDic[seqNum] = textArray[stIndex:endIndex]
-                seqNum += 1
-                stIndex = endIndex
-                endIndex += 100
-            packetDic[seqNum] = textArray[stIndex:]
-            # print seqNum
-            # print "%s" % packetDic[80]
-            # print "%s" % packetDic[81]
+                        totalPacket = numPcks + 1
+                #print totalPck
+                stIndex = 0
+                endIndex = 100
+                seqNum = 1
+                for packet in range(1, totalPacket):
+                        if packet == 1:
+                                packetDic[seqNum] = textArray[0:endIndex]
+                        else:
+                                packetDic[seqNum] = textArray[stIndex:endIndex]
+                        seqNum += 1
+                        stIndex = endIndex
+                        endIndex += 100
+                packetDic[seqNum] = textArray[stIndex:]
+                return 1
+        
+def sendNextBlock():
+        global activePacket
 
-    # sent response to client,
-    # check if we are done, if not send next packet
-    # TODO: why is the clientAddrPort hard coded should it get it
-    # from the connection
+        if pckType == GET: 
+            if openFile():
+                header = bytearray([DTA, '1'])
+                pckToClient = header+packetDic[1]
+                sock.sendto(pckToClient, clientAddrPort)
+                if verbose: print "key: %c, message: %s" % (pckSeq, packetDic[1])
+                activePacket[0] = '1'
+                activePacket[1] = 1
+        elif pckType == ACK:
+            if pckSeq != activePacket[0]:
+                if verbose: print "Incorrect acknowledge received"
+                #send previous block
+                #create header
+                header = bytearray([DTA, activePacket[0]])
+                pckToClient = header+packetDic[activePacket[1]]
+                sock.sendto(pckToClient, clientAddrPort)
+            else:
+                if activePacket[1] == totalPacket:
+                    header = bytearray([FIN, 'F'])
+                    pckToClient = header+bytearray("I'm Done", 'utf-8')
+                    if verbose: print "Packet sent to Client: %c%c%s" % (pckToClient[0], pckToClient[1], pckToClient[2:])
+                    sock.sendto(pckToClient, clientAddrPort)
+                    activePacket[1] = totalPacket
+                else:
+                    nextBlock = activePacket[1] + 1
+                    #print "NB: %d" % nextBlock 
+                    if activePacket[0] == '0':
+                        activePacket[0] = '1'
+                    else:
+                        activePacket[0] = '0'
+                    activePacket[1] = nextBlock
+                    #create header
+                    header = bytearray([DTA, activePacket[0]])
+                    pckToClient = header+packetDic[nextBlock]
+                    if verbose: print "Packet sent to Client: %c%c%s" % (pckToClient[0], pckToClient[1], pckToClient[2:])
+                    sock.sendto(pckToClient, clientAddrPort)
 
-    if pckSeq == totalPck:
-        header = bytearray([LAST_PACKET, 99])
-        msg = bytearray("I'm Done", 'utf-8')
+def sendAck():
+        global totalPck
+        global packetDic
+        global pckSeq
+        global lastPacket
+        global fileName
+        global activePacket
+        global outFile
+
+        #send ack for all packages
+        header = bytearray([ACK, pckSeq])
+        msg = bytearray("ack", 'utf-8')
         pckToClient = header+msg
         sock.sendto(pckToClient, clientAddrPort)
-    else:
-        pckSeq += 1
-        header = bytearray([MID_PACKET, pckSeq])
-        pckToClient = header+packetDic[pckSeq]
-        sock.sendto(pckToClient, clientAddrPort)
 
+        if pckType == PUT:
+                if fileName == "": #if fileName is empty then we got the first request, if not do nothing
+                    fileName = message
+                    outFile = open(fileName, 'w+')
+                    print outFile
+                    lastPacket = '0'
+        elif pckType == DTA: #save packet to dictionary
+                #figure out if we receive a valid packet
+                if lastPacket == pckSeq:
+                        if verbose: print "Invalid Packet"
+                else:
+                        outFile.write('%s' % message)
+                        lastPacket = pckSeq
+        elif pckType == FIN:
+                print "lP: %c" % lastPacket
+                if lastPacket != pckSeq: #if the server gets the FIN for first time, if not ignore
+                    outFile.close()
+                    fileName = ""
+                    print "File Created on current Directory ./%s" % fileName
+                    #cleanUp()
+                    lastPacket = pckSeq
+        
+#processClientMessage, the function will handle all incoming packages
+#It identifies the type of packet that the client sent, and it process the different responses
+def processClientMessage(sock):
+        #Global variables to control de sequence of packages
+        global pckType
+        global pckSeq
+        global message
+        global clientAddrPort
+        global timeoutCount
+        #global lastPacket
 
-def processMsg(sock):
-    global pckType
-    global pckSeq
-    global message
-    global clientAddrPort
-    packet, clientAddrPort = sock.recvfrom(2048)
-    # ADD VERBOSE IF
-    # client = createOrGetClientEntry(clientAddrPort)
-    print "from %s: rec'd '%c%d%s'" % (
-        repr(clientAddrPort), packet[0], ord(packet[1]), packet[2:]
-    )
+        #get client's packet
+        clientPacket, clientAddrPort = sock.recvfrom(2048)
+        global resendCount
+        if verbose:
+                print "From: %s " % (repr(clientAddrPort)) 
 
-    # strip packet
-    pckType = packet[0]
-    pckSeq = ord(packet[1])
-    message = packet[2:]
-    # REMOVE PRINTS BEOFR SUBMIT
-    print "packet type: %c" % pckType
-    print "packet seq: %d" % pckSeq
-    print "message: %s" % message
+        #strip packet
+        pckType = clientPacket[0]
+        pckSeq = clientPacket[1]
+        message = clientPacket[2:]
+        if verbose:
+            print "Packet type: %c" % pckType
+            print "Packet seq: %c" % pckSeq
+            print "Message: %s" % message
+            
+        timeoutCount = 0
+        
+        #identify packet type
+        if pckType == GET or pckType == ACK:
+                sendNextBlock()
+        elif pckType == PUT or pckType == DTA or pckType == FIN:
+               sendAck() 
+    
+    
+	
+#### Main Logic starts here ###
+#define server to connect
+serverSocket = socket(AF_INET, SOCK_DGRAM)
+serverSocket.bind(upperServerAddr)
+serverSocket.setblocking(False)
 
-    # identify packet type
-    if pckType == 'G' or pckType == 'A':
-        sendData()
-        # if pckSeq == '0':
-        # sendAck()
-        # else:
-        #        sendNxtBlock()
-    else:
-        print "no implemented yet"
-
-
-# def uppercase(sock):
-# message, clientAddrPort = sock.recvfrom(2048)
-# print "from %s: rec'd '%s'" % (repr(clientAddrPort), message)
-# modifiedMessage = "ok"#message.upper()
-# sock.sendto(modifiedMessage, clientAddrPort)
-
-upperServerSocket = socket.socket(AF_INET, SOCK_DGRAM)
-upperServerSocket.bind(upperServerAddr)
-upperServerSocket.setblocking(False)
-
-readSockFunc = {}               # dictionaries from socket to function
+readSockFunc = {}               # dictionaries from socket to function 
 writeSockFunc = {}
 errorSockFunc = {}
-timeout = 5                     # seconds
+timeout =  5                    # seconds
 
-readSockFunc[upperServerSocket] = processMsg
+readSockFunc[serverSocket] = processClientMessage
 
+##TODO functionality to change timeout on fly
 print "ready to receive"
 while True:
-    readRdySet, writeRdySet, errorRdySet = select(readSockFunc.keys(),
-                                                  writeSockFunc.keys(),
-                                                  errorSockFunc.keys(),
-                                                  timeout)
-    if not readRdySet and not writeRdySet and not errorRdySet:
-        print "timeout: no events"
-    for sock in readRdySet:
-        readSockFunc[sock](sock)
+	readRdySet, writeRdySet, errorRdySet = select(readSockFunc.keys(),
+                                                      writeSockFunc.keys(), 
+                                                      errorSockFunc.keys(),
+                                                      timeout)
+        if not readRdySet and not writeRdySet and not errorRdySet:
+                if timeoutCount == 5:
+                        cleanUp()
+                print "timeout: no events"
+                timeoutCount += 1
+	for sock in readRdySet:
+                readSockFunc[sock](sock)
