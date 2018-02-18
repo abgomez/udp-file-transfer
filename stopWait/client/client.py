@@ -1,51 +1,52 @@
 #! /bin/python
 
-#Abel Gomez 80602216
-#02/10/2018
-#Client.py, is a program which silumates the communication between a server and a client.
-#It uses datagrams to transfer data to the server. It has two main fucntions: get and put.
-#The function get request a file from the server, the file is saved in a local copy.
-#    Errors: If the files doesn't exists the server will send an error message.
-#The function put sends a request to the server to save a new file or an existing file. 
-#Parameters: server address,  following the following format: host:port
-#If a package is lost or delayed the client will implement a retransmit-on-timeout policy. 
+# Abel Gomez 80602216
+# 02/10/2018
+# Client.py, is a program which silumates the communication between a server and a client.
+# It uses datagrams to transfer data to the server. It has two main fucntions: get and put.
+# The function get request a file from the server, the file is saved in a local copy.
+#     Errors: If the files doesn't exists the server will send an error message.
+# The function put sends a request to the server to save a new file or an existing file.
+# Parameters: server address,  following the following format: host:port
+# If a package is lost or delayed the client will implement a retransmit-on-timeout policy.
 
 import sys, re, os, time
-from socket import *
-from select import *
+import argparse
+from socket import socket, AF_INET, SOCK_DGRAM
+from select import select
 
-#Global variables
+# Global variables
 
-serverAddr = ('localhost', 50000)                                 #default server address
-#define header attributes.
-pckType = bytearray()                                                    #packet type
-pckSeq = bytearray()                                                       #sequence number
-clientSocket = socket(AF_INET, SOCK_DGRAM)                        #socket to communicate
-header = bytearray()                                              #packet's header
-message = bytearray()                                             #packet's data block
-                                                                  #values: 0 = not active, 1 = active
+serverAddr = ('localhost', 50000)           # default server address
+# define header attributes.
+pckType = bytearray()                       # packet type
+pckSeq = bytearray()                        # sequence number
+clientSocket = socket(AF_INET, SOCK_DGRAM)  # socket to communicate
+header = bytearray()                        # packet's header
+message = bytearray()                       # packet's data block
+                                            # values: 0 = not active, 1 = active
 GET = 'G'
 PUT = 'P'
 ACK = 'A'
 DTA = 'D'
 FIN = 'F'
 ERR = 'E'
-#packetToServer = bytearray()
+# packetToServer = bytearray()
 
-#valid variables that i already check
-mode = 'u'                                                        #client mode, can be get or put
-fileName = ""                                                     #file to request
-verbose = 0                                                       #verbose mode
-activePacket = {}                                                 #track the last packet that we sent
-                                                                  #index 0 = sequence No '0' or '1'
-                                                                  #index 1 = last data block sent
-pckDic = {}                                                       #dic to hold data blocks
-totalPacket = 0                                                   #total number of packets
-lastPacket = '1'                                                  #identify last packet
-resendCount = 0                                                   #count number of resends
-sendTime = 0                                                      #time when you send a packet
-recTime = 0                                                       #time when you receive a packet
-RTT = 0                                                           #round trip time
+# valid variables that i already check
+mode = 'u'                                  # client mode, can be get or put
+fileName = ""                               # file to request
+verbose = 0                                 # verbose mode
+activePacket = {}                           # track the last packet that we sent
+                                            # index 0 = sequence No '0' or '1'
+                                            # index 1 = last data block sent
+pckDic = {}                                 # dic to hold data blocks
+totalPacket = 0                             # total number of packets
+lastPacket = '1'                            # identify last packet
+resendCount = 0                             # count number of resends
+sendTime = 0                                # time when you send a packet
+recTime = 0                                 # time when you receive a packet
+RTT = 0                                     # round trip time
 
 def sendAck():
     global activePacket
@@ -68,7 +69,7 @@ def sendAck():
             if verbose: print "RTT: %f" %RTT
             outFile.write('%s' % message)
             lastPacket = pckSeq
-            #send ack 
+            #send ack
             header = bytearray([ACK, pckSeq])
             msg = bytearray("ack", 'utf-8')
             pckToServer = header+msg
@@ -106,7 +107,7 @@ def openFile():
     pckDic[seqNum] = textArray[stIndex:]
 
 def sendFirstMsg():
-    global lastPacket 
+    global lastPacket
     global pckToServer
     global activePacket
     global outFile
@@ -158,7 +159,7 @@ def sendNextBlock():
             RTT = recTime - sendTime
             if verbose: print "RTT: %f" %RTT
             nextBlock = activePacket[1] + 1
-            #print "NB: %d" % nextBlock 
+            #print "NB: %d" % nextBlock
             if activePacket[0] == '0':
                 activePacket[0] = '1'
             else:
@@ -171,28 +172,29 @@ def sendNextBlock():
             clientSocket.sendto(pckToServer, serverAddr)
             sendTime = time.time()
             if verbose: print "Packet sent at %f" % sendTime
-    
+
+
 def processMsg(sock):
     global pckSeq
     global lastPacket
     global pckDic
     global message
     global resendCount
-    
+
     #retreive packet from server
     returnMsg, serverAddrPort = sock.recvfrom(2048)
     if verbose: print "Packet received from server: %s, seq: %c" % (returnMsg[2:], ord(returnMsg[1]))
-    
+
     #strip packet
     pckType = returnMsg[0]
     pckSeq = returnMsg[1]
-    message = returnMsg[2:] 
+    message = returnMsg[2:]
     resendCount = 0
 
     if pckType == DTA:
         sendAck()
     elif pckType == FIN:
-        print "End of file, creating local copy....." 
+        print "End of file, creating local copy....."
         print "File created in current directory: %s" % fileName
         outFile.close()
         sys.exit(1)
@@ -203,17 +205,7 @@ def processMsg(sock):
         print "Please select a valid file"
         sys.exit(1)
 
-#display correct usage of parameters
-def usage():
-    print """usage: %s \n
-    Option                         Default             Description
-    [--serverAddr host:port]       localhost:50001     Server name and port
-    [--put or -p file Name]                            File name to send, must exists on current directory
-    [--get or -g file Name]                            File name to get from server
-    [--verbose or -v]              off                 Verbose Mode
-    [--help or -h]                                     Print usage """% sys.argv[0]
-    sys.exit(1)
-    
+
 def closeConnection():
     global pckToServer
     global activePacket
@@ -240,50 +232,66 @@ def closeConnection():
         print "Incomplete Transfer, %d packets of %d sent" % (activePacket[1], totalPacket)
         inFile.close()
 
-#Check for any user parameters
-try:
-    args = sys.argv[1:]
-    while args:
-        sw = args[0]; del args[0]
-        if sw == "--serverAddr":
-            addr, port = re.split(":", args[0]); del args[0]
-            serverAddr = (addr, int(port))
-        elif sw == "--put" or sw == "-p":
-            fileName = args[0]; del args[0]
-            #check file exists
-            if not os.path.exists(fileName):
-                print "Input File does not exists in current directory: %s" % fileName
-                sys.exit(1)
-            else:
-                mode = 'p'
-        elif sw == "--get" or sw == "-g":
-            fileName = args[0]; del args[0]
-            mode = 'g'
-        elif sw =="--help" or sw == "-h":
-            usage();
-        elif sw =="--verbose" or sw =="-v":
-            verbose = 1
-        else:
-            print "unexpected parameter %s" % args[0]
-            usage();
-except Exception as e: 
-    print "Error parsing arguments %s" % (e)
-    usage()
-    
-###Main logic start here###
-#verify parms
-if mode == 'u':
-    print "Incorrect use of client, you need to use get or put function"
-    usage()
-    sys.exit(1)
-    
+
+# Check for any user parameters
+def format_server_addr(server_addr_parm):
+    addr, port = server_addr_parm.split(":")
+    return (addr, int(port))
+
+
+parser = argparse.ArgumentParser(
+    prog='client',
+    description='Client to GET/PUT a file from UDP server'
+)
+
+# Parse server address and verbose mode
+parser.add_argument('--serverAddr', '-s',
+                    metavar='host:port',
+                    dest='server',
+                    type=format_server_addr,
+                    default=('localhost', 50000),
+                    help='The address of the server in format server-ip:port')
+parser.add_argument('--verbose', '-v',
+                    dest='verbose',
+                    action='store_true',
+                    help='show verbose logs when performing operations')
+
+# Can only do get or put but not both
+group = parser.add_mutually_exclusive_group(required=True)
+group.add_argument('--get', '-g',
+                   metavar='filename',
+                   dest='get',
+                   type=str,
+                   help='flag to GET the given file from the server')
+group.add_argument('--put', '-p',
+                   metavar='filename',
+                   dest='put',
+                   type=argparse.FileType('r'),
+                   help='flag to PUT the given file from the server')
+
+# Actual parsing of arguments
+args = parser.parse_args(sys.argv[1:])
+# Parsed Arguments
+print(args)
+if args.get:
+    mode = 'g'
+    fileName = args.get
+if args.put:
+    mode = 'p'
+    fileName = args.put.name
+if args.server:
+    serverAddr = args.server
+# verbose setting
+if args.verbose:
+    verbose = 1
+
 print "ready to communicate"
 sendFirstMsg()
 readSockFunc = {}
 writeSockFunc = {}
 errorSockFunc = {}
 timeout =  5
-readSockFunc[clientSocket] = processMsg 
+readSockFunc[clientSocket] = processMsg
 
 #clientSocket.sendto(message, serverAddr)
 #print "ready to communicate"
