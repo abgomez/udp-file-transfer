@@ -10,28 +10,20 @@
 #Parameters: server address,  following the following format: host:port
 #If a package is lost or delayed the client will implement a retransmit-on-timeout policy. 
 
-import sys, re, os
+import sys, re, os, time
 from socket import *
 from select import *
 
 #Global variables
 
-serverAddr = ('localhost', 50001)                                 #default server address
-#lastPacket = 0
+serverAddr = ('localhost', 50000)                                 #default server address
 #define header attributes.
 pckType = bytearray()                                                    #packet type
 pckSeq = bytearray()                                                       #sequence number
 clientSocket = socket(AF_INET, SOCK_DGRAM)                        #socket to communicate
-packet = bytearray()                                              #packet to send
 header = bytearray()                                              #packet's header
 message = bytearray()                                             #packet's data block
-#mode = 'u'                                                        #client mode, can be get or put
-connection = 0                                                    #identify connection status
                                                                   #values: 0 = not active, 1 = active
-#verbose = 0                                                       #verbose mode
-#fileName = ""                                                     #file to request
-#pckDic = {}                                                       #dictionary to save data blocks
-#totalPck = 0
 GET = 'G'
 PUT = 'P'
 ACK = 'A'
@@ -47,9 +39,13 @@ verbose = 0                                                       #verbose mode
 activePacket = {}                                                 #track the last packet that we sent
                                                                   #index 0 = sequence No '0' or '1'
                                                                   #index 1 = last data block sent
-pckDic = {}                                                      #dic to hold data blocks
+pckDic = {}                                                       #dic to hold data blocks
 totalPacket = 0                                                   #total number of packets
-lastPacket = '1'
+lastPacket = '1'                                                  #identify last packet
+resendCount = 0                                                   #count number of resends
+sendTime = 0                                                      #time when you send a packet
+recTime = 0                                                       #time when you receive a packet
+RTT = 0                                                           #round trip time
 
 def sendAck():
     global activePacket
@@ -57,11 +53,19 @@ def sendAck():
     global lastPacket
     global pckToServer
     global outFile
+    global message
+    global recTime
+    global sendTime
+    global RTT
 
     #figure out if we receive a valid packet
     if lastPacket == pckSeq:
             if verbose: print "Invalid Packet"
     else:
+            recTime = time.time()
+            if verbose: print "Packet received at %f" % recTime
+            RTT = recTime - sendTime
+            if verbose: print "RTT: %f" %RTT
             outFile.write('%s' % message)
             lastPacket = pckSeq
             #send ack 
@@ -69,11 +73,15 @@ def sendAck():
             msg = bytearray("ack", 'utf-8')
             pckToServer = header+msg
             clientSocket.sendto(pckToServer, serverAddr)
+            if verbose: print "Packet sent to Server: %c%c%s" % (pckToServer[0], pckToServer[1], pckToServer[2:])
+            sendTime = time.time()
+            if verbose: print "Packet sent at %f" % sendTime
     #sys.exit(1)
 
 def openFile():
     global pckDic
     global totalPacket
+    global inFile
 
     inFile = open(fileName, 'r')
     text = inFile.read()
@@ -102,6 +110,7 @@ def sendFirstMsg():
     global pckToServer
     global activePacket
     global outFile
+    global sendTime
 
     if mode == 'g':
         header = bytearray([GET, '0'])
@@ -117,6 +126,8 @@ def sendFirstMsg():
     pckToServer = header+msgToServer
     if verbose: print "Packet sent to Server: %c%c%s" % (pckToServer[0], pckToServer[1], pckToServer[2:])
     clientSocket.sendto(pckToServer, serverAddr)
+    sendTime = time.time()
+    if verbose: print "Packet sent at %f" % sendTime
 
 
 def sendNextBlock():
@@ -124,10 +135,13 @@ def sendNextBlock():
     global pckToServer
     global activePacket
     global totalPacket
+    global sendTime
+    global recTime
+    global RTT
 
     if pckSeq == 'F': #ack of FIN exit client
         if verbose: print "FIN ack, finish communication"
-        #inFile.close()
+        inFile.close()
         sys.exit(1)
     if pckSeq != activePacket[0]:
         if verbose: print "Incorrect acknowledge received"
@@ -139,6 +153,10 @@ def sendNextBlock():
             clientSocket.sendto(pckToServer, serverAddr)
             activePacket[1] = totalPacket
         else:
+            recTime = time.time()
+            if verbose: print "Packet received at %f" % recTime
+            RTT = recTime - sendTime
+            if verbose: print "RTT: %f" %RTT
             nextBlock = activePacket[1] + 1
             #print "NB: %d" % nextBlock 
             if activePacket[0] == '0':
@@ -151,13 +169,15 @@ def sendNextBlock():
             pckToServer = header+pckDic[nextBlock]
             if verbose: print "Packet sent to Server: %c%c%s" % (pckToServer[0], pckToServer[1], pckToServer[2:])
             clientSocket.sendto(pckToServer, serverAddr)
+            sendTime = time.time()
+            if verbose: print "Packet sent at %f" % sendTime
     
 def processMsg(sock):
     global pckSeq
-    global pckType
-    global message
     global lastPacket
     global pckDic
+    global message
+    global resendCount
     
     #retreive packet from server
     returnMsg, serverAddrPort = sock.recvfrom(2048)
@@ -167,6 +187,7 @@ def processMsg(sock):
     pckType = returnMsg[0]
     pckSeq = returnMsg[1]
     message = returnMsg[2:] 
+    resendCount = 0
 
     if pckType == DTA:
         sendAck()
@@ -177,6 +198,10 @@ def processMsg(sock):
         sys.exit(1)
     elif pckType == ACK:
         sendNextBlock()
+    elif pckType == ERR:
+        print "Requested File not found"
+        print "Please select a valid file"
+        sys.exit(1)
 
 #display correct usage of parameters
 def usage():
@@ -188,6 +213,32 @@ def usage():
     [--verbose or -v]              off                 Verbose Mode
     [--help or -h]                                     Print usage """% sys.argv[0]
     sys.exit(1)
+    
+def closeConnection():
+    global pckToServer
+    global activePacket
+    global totalPacket
+
+    if pckToServer[0] == ord(GET) or pckToServer[0] == ord(PUT):
+        print "Unable to reach server"
+        print "Closing application"
+        if pckToServer[0] == ord(GET):
+            outFile.close()
+            print "GET"
+        else:
+            inFile.close()
+            print "PUT"
+    elif pckToServer[0] == ord(FIN):
+        #we assume success
+        print "Transfer has completed successfully"
+    elif pckToServer[0] == ord(ACK):
+        print "Weird something is wrong"
+        print "File %s is incomplete" % fileName
+        outFile.close()
+    elif pckToServer[0] == ord(DTA):
+        print "Unable to rearch Server"
+        print "Incomplete Transfer, %d packets of %d sent" % (activePacket[1], totalPacket)
+        inFile.close()
 
 #Check for any user parameters
 try:
@@ -240,8 +291,13 @@ while True:
     readRdySet, writeRdySet, errorRdySet = select(readSockFunc.keys(), writeSockFunc.keys(), errorSockFunc.keys(), timeout)
     if not readRdySet and not writeRdySet and not errorRdySet:
         print "timeout: no events"
-        #ADD LOGIC TO KILL CLIENT AFTER X TIMES OF RESEND
-        clientSocket.sendto(pckToServer, serverAddr)
+        if resendCount == 5:
+            closeConnection()
+            sys.exit(1)
+        else:
+            clientSocket.sendto(pckToServer, serverAddr)
+            resendCount += 1
+            if verbose: print "resend count: %d" % resendCount
         if verbose: print "Packet to Server on resend: %c%c%s" % (pckToServer[0], pckToServer[1], pckToServer[2:])
     for sock in readRdySet:
         readSockFunc[sock](sock)

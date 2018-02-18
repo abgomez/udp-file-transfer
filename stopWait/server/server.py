@@ -14,10 +14,10 @@ totalPacket= 0                                           #number of packets that
 packetDic = {}                                         #directory to save all pcks from file
 clientAddrPort = 50005
 lastPacket = '0'
-activePacket = '0'
 verbose = 1                                                      #verbose mode
 fileName = ""
 activePacket = {}
+timeoutCount = 0                                                 #determine if client is dead
 GET = 'G'                                                        #macro definitions to identify packages
 PUT = 'P'
 ACK = 'A'
@@ -26,18 +26,39 @@ FIN = 'F'
 ERR = 'E'
 
 def cleanUp():
-        print "TODO"
-        sys.exit(1)
+        global inFile
+        global outFile
+        global fileName
+        global lastPacket
+        global activePacket
+        global timeoutCount
+        global pckType
+
+        if pckType == ACK:
+                inFile.close()
+        elif pckType == DTA:
+                outFile.close()
+        fileName = ""
+        lastPacket ='0'
+        activePacket = {}
+        timeoutCount = 0
+        if verbose: print "Refresh, ready to receive"
+        #sys.exit(1)
 
 def openFile():
         global totalPacket
         global packetDic
         global pckSeq
+        global inFile
 
         #verify files exists
         if not os.path.exists(message):
                 if verbose: print "ERROR: file requested by client do not exists"
-                print "SENT ERROR MESSAGE" #NEED TO IMPLEMENT ERROR PACKET
+                header = bytearray([ERR, '0'])
+                msg = "incorrect file name my dear child"
+                pckToClient = header+msg
+                sock.sendto(pckToClient, clientAddrPort)
+                return 0
         else:
                 inFile = open(message)
                 text = inFile.read()
@@ -60,18 +81,19 @@ def openFile():
                         stIndex = endIndex
                         endIndex += 100
                 packetDic[seqNum] = textArray[stIndex:]
+                return 1
         
 def sendNextBlock():
         global activePacket
 
         if pckType == GET: 
-            openFile()
-            header = bytearray([DTA, '1'])
-            pckToClient = header+packetDic[1]
-            sock.sendto(pckToClient, clientAddrPort)
-            if verbose: print "key: %c, message: %s" % (pckSeq, packetDic[1])
-            activePacket[0] = '1'
-            activePacket[1] = 1
+            if openFile():
+                header = bytearray([DTA, '1'])
+                pckToClient = header+packetDic[1]
+                sock.sendto(pckToClient, clientAddrPort)
+                if verbose: print "key: %c, message: %s" % (pckSeq, packetDic[1])
+                activePacket[0] = '1'
+                activePacket[1] = 1
         elif pckType == ACK:
             if pckSeq != activePacket[0]:
                 if verbose: print "Incorrect acknowledge received"
@@ -120,6 +142,7 @@ def sendAck():
                 if fileName == "": #if fileName is empty then we got the first request, if not do nothing
                     fileName = message
                     outFile = open(fileName, 'w+')
+                    print outFile
                     lastPacket = '0'
         elif pckType == DTA: #save packet to dictionary
                 #figure out if we receive a valid packet
@@ -132,8 +155,9 @@ def sendAck():
                 print "lP: %c" % lastPacket
                 if lastPacket != pckSeq: #if the server gets the FIN for first time, if not ignore
                     outFile.close()
+                    fileName = ""
                     print "File Created on current Directory ./%s" % fileName
-                    cleanUp()
+                    #cleanUp()
                     lastPacket = pckSeq
         
 #processClientMessage, the function will handle all incoming packages
@@ -144,10 +168,12 @@ def processClientMessage(sock):
         global pckSeq
         global message
         global clientAddrPort
+        global timeoutCount
         #global lastPacket
 
         #get client's packet
         clientPacket, clientAddrPort = sock.recvfrom(2048)
+        global resendCount
         if verbose:
                 print "From: %s " % (repr(clientAddrPort)) 
 
@@ -159,6 +185,8 @@ def processClientMessage(sock):
             print "Packet type: %c" % pckType
             print "Packet seq: %c" % pckSeq
             print "Message: %s" % message
+            
+        timeoutCount = 0
         
         #identify packet type
         if pckType == GET or pckType == ACK:
@@ -183,13 +211,15 @@ readSockFunc[serverSocket] = processClientMessage
 
 ##TODO functionality to change timeout on fly
 print "ready to receive"
-while 1:
+while True:
 	readRdySet, writeRdySet, errorRdySet = select(readSockFunc.keys(),
                                                       writeSockFunc.keys(), 
                                                       errorSockFunc.keys(),
                                                       timeout)
         if not readRdySet and not writeRdySet and not errorRdySet:
+                if timeoutCount == 5:
+                        cleanUp()
                 print "timeout: no events"
+                timeoutCount += 1
 	for sock in readRdySet:
                 readSockFunc[sock](sock)
-
