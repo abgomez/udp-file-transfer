@@ -16,14 +16,14 @@ from select import *
 
 #Global variables
 
-serverAddr = ('localhost', 50000)                                 #default server address
+serverAddr = ('localhost', 50001)                                 #default server address
 #define header attributes.
 pckType = bytearray()                                                    #packet type
 pckSeq = bytearray()                                                       #sequence number
 clientSocket = socket(AF_INET, SOCK_DGRAM)                        #socket to communicate
 header = bytearray()                                              #packet's header
 message = bytearray()                                             #packet's data block
-                                                                  #values: 0 = not active, 1 = active
+blockSeq = bytearray()
 GET = 'G'
 PUT = 'P'
 ACK = 'A'
@@ -46,6 +46,8 @@ resendCount = 0                                                   #count number 
 sendTime = 0                                                      #time when you send a packet
 recTime = 0                                                       #time when you receive a packet
 RTT = 0                                                           #round trip time
+initTime = 0                                                      #time when we send the first packet
+endTime = 0                                                       #time when we receive the last packet
 
 def sendAck():
     global activePacket
@@ -57,6 +59,7 @@ def sendAck():
     global recTime
     global sendTime
     global RTT
+    global blockSeq
 
     #figure out if we receive a valid packet
     if lastPacket == pckSeq:
@@ -71,9 +74,10 @@ def sendAck():
             #send ack 
             header = bytearray([ACK, pckSeq])
             msg = bytearray("ack", 'utf-8')
-            pckToServer = header+msg
+            pckToServer = header+blockSeq+msg
             clientSocket.sendto(pckToServer, serverAddr)
-            if verbose: print "Packet sent to Server: %c%c%s" % (pckToServer[0], pckToServer[1], pckToServer[2:])
+            #if verbose: print "Packet sent to Server: %c%c%s" % (pckToServer[0], pckToServer[1], pckToServer[2:])
+            if verbose: print "Packet to Server: %c%c%s%s" % (pckToServer[0], pckToServer[1], pckToServer[2:7], pckToServer[7:])
             sendTime = time.time()
             if verbose: print "Packet sent at %f" % sendTime
     #sys.exit(1)
@@ -86,6 +90,10 @@ def openFile():
     inFile = open(fileName, 'r')
     text = inFile.read()
     textArray = bytearray(text, 'utf-8')
+    fileLen = len(textArray)
+    if fileLen > 100000:
+        if verbose: print "ERROR File to big"
+        sys.exit(1)
     numberOfPackets = len(textArray)/100
     if len(textArray) % 100 == 0:
         totalPacket = numberOfPackets
@@ -111,6 +119,7 @@ def sendFirstMsg():
     global activePacket
     global outFile
     global sendTime
+    global initTime
 
     if mode == 'g':
         header = bytearray([GET, '0'])
@@ -122,12 +131,24 @@ def sendFirstMsg():
         activePacket[1] = 0
         openFile()
 
+    sequence = 99999
+    #print "%05d" % sequence
+    sequenceSrt = "%05d" % sequence
+    print sequenceSrt
+    #print ord(seqSrt[0])
+    sequenceBlock = bytes(sequenceSrt)
+    #print blockSeq
     msgToServer = fileName
-    pckToServer = header+msgToServer
-    if verbose: print "Packet sent to Server: %c%c%s" % (pckToServer[0], pckToServer[1], pckToServer[2:])
+    pckToServer = header+sequenceBlock+msgToServer
+    #print pckToServer[2:6]
+    #if verbose: print "Packet sent to Server: %c%c%s" % (pckToServer[0], pckToServer[1], pckToServer[2:])
+    if verbose: print "Packet sent to Server: %c%c%s%s" % (pckToServer[0], pckToServer[1], pckToServer[2:7], pckToServer[7:])
     clientSocket.sendto(pckToServer, serverAddr)
     sendTime = time.time()
     if verbose: print "Packet sent at %f" % sendTime
+    initTime = time.time()
+    if verbose: print "First packet sent at %f" % initTime
+    #sys.exit(1)
 
 
 def sendNextBlock():
@@ -138,18 +159,28 @@ def sendNextBlock():
     global sendTime
     global recTime
     global RTT
+    global endTime
+    global initTime
+    global blockSeq
 
     if pckSeq == 'F': #ack of FIN exit client
         if verbose: print "FIN ack, finish communication"
         inFile.close()
+        endTime = time.time()
+        if verbose: print "Last packet received at %f" % endTime
+        if verbose: print "FP %f, LT %f" % (initTime, endTime)
         sys.exit(1)
     if pckSeq != activePacket[0]:
         if verbose: print "Incorrect acknowledge received"
     else:
         if activePacket[1] == totalPacket:
             header = bytearray([FIN, 'F'])
-            pckToServer = header+bytearray("I'm Done", 'utf-8')
-            if verbose: print "Packet sent to Server: %c%c%s" % (pckToServer[0], pckToServer[1], pckToServer[2:])
+            sequence = "%05d" % totalPacket
+            blockSeq = bytearray(sequence)
+            pckToServer = header+blockSeq+bytearray("I'm Done", 'utf-8')
+            #if verbose: print "Packet sent to Server: %c%c%s" % (pckToServer[0], pckToServer[1], pckToServer[2:])
+            #if verbose: print "Packet sent to Server: %c%c%s%s" % (pckToServer[0], pckToServer[1], pckToServer[2:7], pckToServer[7:])
+            if verbose: print "Packet sent to Server: %s" % (pckToServer)
             clientSocket.sendto(pckToServer, serverAddr)
             activePacket[1] = totalPacket
         else:
@@ -166,8 +197,11 @@ def sendNextBlock():
             activePacket[1] = nextBlock
             #create header
             header = bytearray([DTA, activePacket[0]])
-            pckToServer = header+pckDic[nextBlock]
-            if verbose: print "Packet sent to Server: %c%c%s" % (pckToServer[0], pckToServer[1], pckToServer[2:])
+            sequence = "%05d" % nextBlock
+            blockSeq = bytearray(sequence)
+            pckToServer = header+blockSeq+pckDic[nextBlock]
+            #if verbose: print "Packet sent to Server: %c%c%s" % (pckToServer[0], pckToServer[1], pckToServer[2:])
+            if verbose: print "Packet sent to Server: %c%c%s%s" % (pckToServer[0], pckToServer[1], pckToServer[2:7], pckToServer[7:])
             clientSocket.sendto(pckToServer, serverAddr)
             sendTime = time.time()
             if verbose: print "Packet sent at %f" % sendTime
@@ -178,6 +212,9 @@ def processMsg(sock):
     global pckDic
     global message
     global resendCount
+    global endTime
+    global initTime
+    global blockSeq
     
     #retreive packet from server
     returnMsg, serverAddrPort = sock.recvfrom(2048)
@@ -186,7 +223,8 @@ def processMsg(sock):
     #strip packet
     pckType = returnMsg[0]
     pckSeq = returnMsg[1]
-    message = returnMsg[2:] 
+    blockSeq = returnMsg[2:7]
+    message = returnMsg[7:] 
     resendCount = 0
 
     if pckType == DTA:
@@ -195,6 +233,9 @@ def processMsg(sock):
         print "End of file, creating local copy....." 
         print "File created in current directory: %s" % fileName
         outFile.close()
+        endTime = time.time()
+        if verbose: print "Last packet received at %f" % endTime
+        if verbose: print "FP %f, LT %f" % (initTime, endTime)
         sys.exit(1)
     elif pckType == ACK:
         sendNextBlock()

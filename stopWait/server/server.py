@@ -10,6 +10,7 @@ upperServerAddr = ("", 50001)   # any addr, port 50,000
 pckType = bytearray()
 pckSeq = bytearray()
 message = bytearray()
+sequenceBlock = bytearray()
 totalPacket= 0                                           #number of packets that we need to send to client.
 packetDic = {}                                         #directory to save all pcks from file
 clientAddrPort = 50005
@@ -56,13 +57,20 @@ def openFile():
                 if verbose: print "ERROR: file requested by client do not exists"
                 header = bytearray([ERR, '0'])
                 msg = "incorrect file name my dear child"
-                pckToClient = header+msg
+                pckToClient = header+bytearray("00000", 'utf-8')+msg
                 sock.sendto(pckToClient, clientAddrPort)
                 return 0
         else:
                 inFile = open(message)
                 text = inFile.read()
                 textArray = bytearray(text, 'utf-8')
+                if len(textArray) > 100000:
+                    if verbose: print "ERROR: file bigger than maximum size"
+                    header = bytearray([ERR, '0'])
+                    msg = "incorrect file my dear child"
+                    pckToClient = header+bytearray("00000", 'utf-8')+msg
+                    sock.sendto(pckToClient, clientAddrPort)
+                    return 0
                 numPcks = len(textArray)/100
                 if (len(textArray) % 100) == 0:
                         totalPacket = numPcks
@@ -85,11 +93,12 @@ def openFile():
         
 def sendNextBlock():
         global activePacket
+        global sequenceBlock
 
         if pckType == GET: 
             if openFile():
                 header = bytearray([DTA, '1'])
-                pckToClient = header+packetDic[1]
+                pckToClient = header+bytearray("00001", 'utf-8')+packetDic[1]
                 sock.sendto(pckToClient, clientAddrPort)
                 if verbose: print "key: %c, message: %s" % (pckSeq, packetDic[1])
                 activePacket[0] = '1'
@@ -100,12 +109,14 @@ def sendNextBlock():
                 #send previous block
                 #create header
                 header = bytearray([DTA, activePacket[0]])
-                pckToClient = header+packetDic[activePacket[1]]
+                sequence = "%05d" % nextBlock
+                sequenceBlock = bytearray(sequence)
+                pckToClient = header+sequenceBlock+packetDic[activePacket[1]]
                 sock.sendto(pckToClient, clientAddrPort)
             else:
                 if activePacket[1] == totalPacket:
                     header = bytearray([FIN, 'F'])
-                    pckToClient = header+bytearray("I'm Done", 'utf-8')
+                    pckToClient = header+bytearray("00000", 'utf-8')+bytearray("I'm Done", 'utf-8')
                     if verbose: print "Packet sent to Client: %c%c%s" % (pckToClient[0], pckToClient[1], pckToClient[2:])
                     sock.sendto(pckToClient, clientAddrPort)
                     activePacket[1] = totalPacket
@@ -119,7 +130,9 @@ def sendNextBlock():
                     activePacket[1] = nextBlock
                     #create header
                     header = bytearray([DTA, activePacket[0]])
-                    pckToClient = header+packetDic[nextBlock]
+                    sequence = "%05d" % nextBlock
+                    sequenceBlock = bytearray(sequence)
+                    pckToClient = header+sequenceBlock+packetDic[nextBlock]
                     if verbose: print "Packet sent to Client: %c%c%s" % (pckToClient[0], pckToClient[1], pckToClient[2:])
                     sock.sendto(pckToClient, clientAddrPort)
 
@@ -131,11 +144,12 @@ def sendAck():
         global fileName
         global activePacket
         global outFile
+        global sequenceBlock
 
         #send ack for all packages
         header = bytearray([ACK, pckSeq])
         msg = bytearray("ack", 'utf-8')
-        pckToClient = header+msg
+        pckToClient = header+sequenceBlock+msg
         sock.sendto(pckToClient, clientAddrPort)
 
         if pckType == PUT:
@@ -154,9 +168,10 @@ def sendAck():
         elif pckType == FIN:
                 print "lP: %c" % lastPacket
                 if lastPacket != pckSeq: #if the server gets the FIN for first time, if not ignore
+                    print "File Created on current Directory %s" % fileName
                     outFile.close()
                     fileName = ""
-                    print "File Created on current Directory ./%s" % fileName
+                    #print "File Created on current Directory %s" % fileName
                     #cleanUp()
                     lastPacket = pckSeq
         
@@ -169,6 +184,7 @@ def processClientMessage(sock):
         global message
         global clientAddrPort
         global timeoutCount
+        global sequenceBlock
         #global lastPacket
 
         #get client's packet
@@ -180,12 +196,14 @@ def processClientMessage(sock):
         #strip packet
         pckType = clientPacket[0]
         pckSeq = clientPacket[1]
-        message = clientPacket[2:]
+        sequenceBlock = clientPacket[2:7]
+        message = clientPacket[7:]
         if verbose:
             print "Packet type: %c" % pckType
             print "Packet seq: %c" % pckSeq
+            print "Block seq: %s" % sequenceBlock
             print "Message: %s" % message
-            
+            #sys.exit(1) 
         timeoutCount = 0
         
         #identify packet type
