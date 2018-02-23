@@ -64,7 +64,7 @@ def openFile():
                 inFile = open(message)
                 text = inFile.read()
                 textArray = bytearray(text, 'utf-8')
-                if len(textArray) > 100000:
+                if len(textArray) > 10000000:
                     if verbose: print "ERROR: file bigger than maximum size"
                     header = bytearray([ERR, '0'])
                     msg = "incorrect file my dear child"
@@ -94,6 +94,7 @@ def openFile():
 def sendNextBlock():
         global activePacket
         global sequenceBlock
+        global nextBlock
 
         if pckType == GET: 
             if openFile():
