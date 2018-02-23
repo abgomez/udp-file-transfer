@@ -1,0 +1,664 @@
+ready to communicate
+Packet sent to Server: P000000declaration.txt
+Packet sent at 1519367207.882671
+First packet sent at 1519367207.882681
+Packet received from server: 00000ack, seq: 0
+Packet received at 1519367207.988085
+RTT: 0.105414
+Packet sent to Server: D100001WHEN, in the Course of human Events, it becomes necessary for one
+People to dissolve the Political B
+Packet sent at 1519367207.988238
+Packet received from server: 00001ack, seq: 1
+Packet received at 1519367208.101552
+RTT: 0.113314
+Packet sent to Server: D000002ands which have connected them with
+another, and to assume, among the Powers of the Earth, the separ
+Packet sent at 1519367208.101663
+Packet received from server: 00002ack, seq: 0
+Packet received at 1519367208.215752
+RTT: 0.114089
+Packet sent to Server: D100003ate
+and equal Station to which the Laws of Nature and of Nature's GOD
+entitle them, a decent Respect
+Packet sent at 1519367208.215861
+Packet received from server: 00003ack, seq: 1
+Packet received at 1519367208.330121
+RTT: 0.114260
+Packet sent to Server: D000004 to the Opinions of Mankind requires
+that they should declare the Causes which impel them to the
+Sep
+Packet sent at 1519367208.330160
+Packet received from server: 00004ack, seq: 0
+Packet received at 1519367208.442948
+RTT: 0.112788
+Packet sent to Server: D100005aration.
+
+We hold these Truths to be self-evident, that all Men are created
+equal, that they are end
+Packet sent at 1519367208.442988
+Packet received from server: 00005ack, seq: 1
+Packet received at 1519367208.556211
+RTT: 0.113223
+Packet sent to Server: D000006owed, by their CREATOR, with certain
+unalienable Rights, that among these are Life, Liberty, and the
+Packet sent at 1519367208.556250
+Packet received from server: 00006ack, seq: 0
+Packet received at 1519367208.669433
+RTT: 0.113183
+Packet sent to Server: D100007
+Pursuit of Happiness.--That to secure these Rights, Governments are
+instituted among Men, deriving 
+Packet sent at 1519367208.669472
+Packet received from server: 00007ack, seq: 1
+Packet received at 1519367208.783165
+RTT: 0.113693
+Packet sent to Server: D000008their just Powers from the Consent of
+the Governed, that whenever any Form of Government becomes des
+Packet sent at 1519367208.783207
+timeout: no events
+resend count: 1
+Packet to Server on resend: D000008their just Powers from the Consent of
+the Governed, that whenever any Form of Government becomes des
+Packet received from server: 00008ack, seq: 0
+Packet received at 1519367213.900307
+RTT: 5.117100
+Packet sent to Server: D100009tructive
+of these Ends, it is the Right of the People to alter or to abolish
+it, and to institute ne
+Packet sent at 1519367213.900375
+Packet received from server: 00009ack, seq: 1
+Packet received at 1519367214.014723
+RTT: 0.114348
+Packet sent to Server: D000010w Government, laying its Foundation on such
+Principles, and organizing its Powers in such Form, as t
+Packet sent at 1519367214.014759
+Packet received from server: 00010ack, seq: 0
+Packet received at 1519367214.127289
+RTT: 0.112530
+Packet sent to Server: D100011o them shall
+seem most likely to effect their Safety and Happiness. Prudence,
+indeed, will dictate, 
+Packet sent at 1519367214.127328
+Packet received from server: 00011ack, seq: 1
+Packet received at 1519367214.240546
+RTT: 0.113218
+Packet sent to Server: D000012that Governments long established, should not be
+changed for light and transient Causes; and accordi
+Packet sent at 1519367214.240582
+Packet received from server: 00012ack, seq: 0
+Packet received at 1519367214.354426
+RTT: 0.113844
+Packet sent to Server: D100013ngly all Experience
+hath shewn, that Mankind are more disposed to suffer, while Evils are
+sufferable
+Packet sent at 1519367214.354465
+Packet received from server: 00013ack, seq: 1
+Packet received at 1519367214.468501
+RTT: 0.114036
+Packet sent to Server: D000014, than to right themselves by abolishing the Forms to which
+they are accustomed. But when a long Tra
+Packet sent at 1519367214.468539
+timeout: no events
+resend count: 1
+Packet to Server on resend: D000014, than to right themselves by abolishing the Forms to which
+they are accustomed. But when a long Tra
+timeout: no events
+resend count: 2
+Packet to Server on resend: D000014, than to right themselves by abolishing the Forms to which
+they are accustomed. But when a long Tra
+timeout: no events
+resend count: 3
+Packet to Server on resend: D000014, than to right themselves by abolishing the Forms to which
+they are accustomed. But when a long Tra
+Packet received from server: 00014ack, seq: 0
+Packet received at 1519367229.600625
+RTT: 15.132086
+Packet sent to Server: D100015in of Abuses and Usurpations,
+pursuing invariably the same Object, evinces a Design to reduce them
+u
+Packet sent at 1519367229.600681
+Packet received from server: 00015ack, seq: 1
+Packet received at 1519367229.715050
+RTT: 0.114369
+Packet sent to Server: D000016nder absolute Despotism, it is their Right, it is their Duty, to
+throw off such Government, and to p
+Packet sent at 1519367229.715090
+Packet received from server: 00016ack, seq: 0
+Packet received at 1519367229.829217
+RTT: 0.114127
+Packet sent to Server: D100017rovide new Guards for their future
+Security. Such has been the patient Sufferance of these Colonies;
+Packet sent at 1519367229.829257
+Packet received from server: 00017ack, seq: 1
+Packet received at 1519367229.943755
+RTT: 0.114498
+Packet sent to Server: D000018 and
+such is now the Necessity which constrains them to alter their former
+Systems of Government. Th
+Packet sent at 1519367229.943795
+Packet received from server: 00018ack, seq: 0
+Packet received at 1519367230.057455
+RTT: 0.113660
+Packet sent to Server: D100019e History of the present King of
+Great-Britain is a History of repeated Injuries and Usurpations, al
+Packet sent at 1519367230.057495
+Packet received from server: 00019ack, seq: 1
+Packet received at 1519367230.171324
+RTT: 0.113829
+Packet sent to Server: D000020l
+having in direct Object the Establishment of an absolute Tyranny over
+these States. To prove this,
+Packet sent at 1519367230.171364
+Packet received from server: 00020ack, seq: 0
+Packet received at 1519367230.284104
+RTT: 0.112740
+Packet sent to Server: D100021 let Facts be submitted to a candid World.
+
+HE has refused his Assent to Laws, the most wholesome an
+Packet sent at 1519367230.284155
+Packet received from server: 00021ack, seq: 1
+Packet received at 1519367230.398437
+RTT: 0.114282
+Packet sent to Server: D000022d necessary
+for the public Good.
+
+HE has forbidden his Governors to pass Laws of immediate and press
+Packet sent at 1519367230.398497
+Packet received from server: 00022ack, seq: 0
+Packet received at 1519367230.511871
+RTT: 0.113374
+Packet sent to Server: D100023ing
+Importance, unless suspended in their Operation till his Assent should
+be obtained; and when so 
+Packet sent at 1519367230.511911
+Packet received from server: 00023ack, seq: 1
+Packet received at 1519367230.625326
+RTT: 0.113415
+Packet sent to Server: D000024suspended, he has utterly neglected to attend
+to them.
+
+HE has refused to pass other Laws for the Ac
+Packet sent at 1519367230.625363
+Packet received from server: 00024ack, seq: 0
+Packet received at 1519367230.739351
+RTT: 0.113988
+Packet sent to Server: D100025commodation of large
+Districts of People, unless those People would relinquish the Right of
+Represen
+Packet sent at 1519367230.739388
+Packet received from server: 00025ack, seq: 1
+Packet received at 1519367230.852127
+RTT: 0.112739
+Packet sent to Server: D000026tation in the Legislature, a Right inestimable to them, and
+formidable to Tyranny only.
+
+HE has call
+Packet sent at 1519367230.852165
+Packet received from server: 00026ack, seq: 0
+Packet received at 1519367230.966289
+RTT: 0.114124
+Packet sent to Server: D100027ed together Legislative Bodies at Places unusual,
+uncomfortable, and distant from the Depository of 
+Packet sent at 1519367230.966325
+timeout: no events
+resend count: 1
+Packet to Server on resend: D100027ed together Legislative Bodies at Places unusual,
+uncomfortable, and distant from the Depository of 
+Packet received from server: 00027ack, seq: 1
+Packet received at 1519367236.083202
+RTT: 5.116877
+Packet sent to Server: D000028their public
+Records, for the sole Purpose of fatiguing them into Compliance with
+his Measures.
+
+HE 
+Packet sent at 1519367236.083270
+Packet received from server: 00028ack, seq: 0
+Packet received at 1519367236.196522
+RTT: 0.113252
+Packet sent to Server: D100029has dissolved Representative Houses repeatedly, for opposing with
+manly Firmness his Invasions on th
+Packet sent at 1519367236.196588
+Packet received from server: 00029ack, seq: 1
+Packet received at 1519367236.310553
+RTT: 0.113965
+Packet sent to Server: D000030e Rights of the People.
+
+HE has refused for a long Time, after such Dissolutions, to cause
+others to
+Packet sent at 1519367236.310591
+Packet received from server: 00030ack, seq: 0
+Packet received at 1519367236.424217
+RTT: 0.113626
+Packet sent to Server: D100031 be elected; whereby the Legislative Powers, incapable of
+Annihilation, have returned to the People 
+Packet sent at 1519367236.424257
+Packet received from server: 00031ack, seq: 1
+Packet received at 1519367236.537022
+RTT: 0.112765
+Packet sent to Server: D000032at large for their exercise;
+the State remaining, in the mean Time, exposed to all the Dangers of
+In
+Packet sent at 1519367236.537061
+Packet received from server: 00032ack, seq: 0
+Packet received at 1519367236.650907
+RTT: 0.113846
+Packet sent to Server: D100033vasion from without, and Convulsions within.
+
+HE has endeavoured to prevent the Population of these 
+Packet sent at 1519367236.650945
+timeout: no events
+resend count: 1
+Packet to Server on resend: D100033vasion from without, and Convulsions within.
+
+HE has endeavoured to prevent the Population of these 
+timeout: no events
+resend count: 2
+Packet to Server on resend: D100033vasion from without, and Convulsions within.
+
+HE has endeavoured to prevent the Population of these 
+Packet received from server: 00033ack, seq: 1
+Packet received at 1519367246.776433
+RTT: 10.125488
+Packet sent to Server: D000034States; for that
+Purpose obstructing the Laws for Naturalization of Foreigners;
+refusing to pass oth
+Packet sent at 1519367246.776484
+Packet received from server: 00034ack, seq: 0
+Packet received at 1519367246.890488
+RTT: 0.114004
+Packet sent to Server: D100035ers to encourage their Migrations hither, and
+raising the Conditions of new Appropriations of Lands.
+Packet sent at 1519367246.890525
+Packet received from server: 00035ack, seq: 1
+Packet received at 1519367247.004674
+RTT: 0.114149
+Packet sent to Server: D000036
+
+HE has obstructed the Administration of Justice, by refusing his
+Assent to Laws for establishing J
+Packet sent at 1519367247.004714
+Packet received from server: 00036ack, seq: 0
+Packet received at 1519367247.118144
+RTT: 0.113430
+Packet sent to Server: D100037udiciary Powers.
+
+HE has made Judges dependent on his Will alone, for the Tenure of
+their Offices, a
+Packet sent at 1519367247.118184
+Packet received from server: 00037ack, seq: 1
+Packet received at 1519367247.231712
+RTT: 0.113528
+Packet sent to Server: D000038nd the Amount and Payment of their Salaries.
+
+HE has erected a Multitude of new Offices, and sent hi
+Packet sent at 1519367247.231748
+Packet received from server: 00038ack, seq: 0
+Packet received at 1519367247.345090
+RTT: 0.113342
+Packet sent to Server: D100039ther Swarms of
+Officers to harrass our People, and eat out their Substance.
+
+HE has kept among us, i
+Packet sent at 1519367247.345127
+Packet received from server: 00039ack, seq: 1
+Packet received at 1519367247.458521
+RTT: 0.113394
+Packet sent to Server: D000040n Times of Peace, Standing Armies, without the
+Consent of our Legislatures.
+
+HE has affected to rend
+Packet sent at 1519367247.458565
+Packet received from server: 00040ack, seq: 0
+Packet received at 1519367247.571873
+RTT: 0.113308
+Packet sent to Server: D100041er the Military independent of and superior to
+the Civil Power.
+
+HE has combined with others to subj
+Packet sent at 1519367247.571916
+Packet received from server: 00041ack, seq: 1
+Packet received at 1519367247.685313
+RTT: 0.113397
+Packet sent to Server: D000042ect us to a Jurisdiction foreign to
+our Constitution, and unacknowledged by our Laws; giving his Ass
+Packet sent at 1519367247.685387
+timeout: no events
+resend count: 1
+Packet to Server on resend: D000042ect us to a Jurisdiction foreign to
+our Constitution, and unacknowledged by our Laws; giving his Ass
+Packet received from server: 00042ack, seq: 0
+Packet received at 1519367252.804580
+RTT: 5.119193
+Packet sent to Server: D100043ent to
+their Acts of pretended Legislation:
+
+FOR quartering large Bodies of Armed Troops among us:
+
+
+Packet sent at 1519367252.804621
+Packet received from server: 00043ack, seq: 1
+Packet received at 1519367252.918088
+RTT: 0.113467
+Packet sent to Server: D000044FOR protecting them, by a mock Trial, from Punishment for any Murders
+which they should commit on th
+Packet sent at 1519367252.918147
+Packet received from server: 00044ack, seq: 0
+Packet received at 1519367253.031945
+RTT: 0.113798
+Packet sent to Server: D100045e Inhabitants of these States:
+
+FOR cutting off our Trade with all Parts of the World:
+
+FOR imposing
+Packet sent at 1519367253.032005
+timeout: no events
+resend count: 1
+Packet to Server on resend: D100045e Inhabitants of these States:
+
+FOR cutting off our Trade with all Parts of the World:
+
+FOR imposing
+Packet received from server: 00045ack, seq: 1
+Packet received at 1519367258.150851
+RTT: 5.118846
+Packet sent to Server: D000046 Taxes on us without our Consent:
+
+FOR depriving us, in many Cases, of the Benefits of Trial by Jury
+Packet sent at 1519367258.150890
+Packet received from server: 00046ack, seq: 0
+Packet received at 1519367258.265136
+RTT: 0.114246
+Packet sent to Server: D100047:
+
+FOR transporting us beyond Seas to be tried for pretended Offences:
+
+FOR abolishing the free Syst
+Packet sent at 1519367258.265177
+timeout: no events
+resend count: 1
+Packet to Server on resend: D100047:
+
+FOR transporting us beyond Seas to be tried for pretended Offences:
+
+FOR abolishing the free Syst
+Packet received from server: 00047ack, seq: 1
+Packet received at 1519367263.381741
+RTT: 5.116564
+Packet sent to Server: D000048em of English Laws in a neighbouring
+Province, establishing therein an arbitrary Government, and enl
+Packet sent at 1519367263.381789
+Packet received from server: 00048ack, seq: 0
+Packet received at 1519367263.495801
+RTT: 0.114012
+Packet sent to Server: D100049arging
+its Boundaries, so as to render it at once an Example and fit
+Instrument for introducing the 
+Packet sent at 1519367263.495838
+Packet received from server: 00049ack, seq: 1
+Packet received at 1519367263.608870
+RTT: 0.113032
+Packet sent to Server: D000050same absolute Rule into these Colonies:
+
+FOR taking away our Charters, abolishing our most valuable 
+Packet sent at 1519367263.608960
+timeout: no events
+resend count: 1
+Packet to Server on resend: D000050same absolute Rule into these Colonies:
+
+FOR taking away our Charters, abolishing our most valuable 
+Packet received from server: 00050ack, seq: 0
+Packet received at 1519367268.728812
+RTT: 5.119852
+Packet sent to Server: D100051Laws, and
+altering fundamentally the Forms of our Governments:
+
+FOR suspending our own Legislatures,
+Packet sent at 1519367268.728859
+Packet received from server: 00051ack, seq: 1
+Packet received at 1519367268.842205
+RTT: 0.113346
+Packet sent to Server: D000052 and declaring themselves invested
+with Power to legislate for us in all Cases whatsoever.
+
+HE has a
+Packet sent at 1519367268.842245
+Packet received from server: 00052ack, seq: 0
+Packet received at 1519367268.955696
+RTT: 0.113451
+Packet sent to Server: D100053bdicated Government here, by declaring us out of his
+Protection, and waging War against us.
+
+HE has 
+Packet sent at 1519367268.955734
+Packet received from server: 00053ack, seq: 1
+Packet received at 1519367269.069100
+RTT: 0.113366
+Packet sent to Server: D000054plundered our Seas, ravaged our Coasts, burnt our Towns, and
+destroyed the Lives of our People.
+
+HE 
+Packet sent at 1519367269.069142
+timeout: no events
+resend count: 1
+Packet to Server on resend: D000054plundered our Seas, ravaged our Coasts, burnt our Towns, and
+destroyed the Lives of our People.
+
+HE 
+Packet received from server: 00054ack, seq: 0
+Packet received at 1519367274.189589
+RTT: 5.120447
+Packet sent to Server: D100055is, at this Time, transporting large Armies of foreign Mercenaries
+to complete the Works of Death, D
+Packet sent at 1519367274.189659
+Packet received from server: 00055ack, seq: 1
+Packet received at 1519367274.303833
+RTT: 0.114174
+Packet sent to Server: D000056esolation, and Tyranny, already begun
+with Circumstances of Cruelty and Perfidy, scarcely paralleled
+Packet sent at 1519367274.303872
+Packet received from server: 00056ack, seq: 0
+Packet received at 1519367274.417935
+RTT: 0.114063
+Packet sent to Server: D100057 in the
+most barbarous Ages, and totally unworthy the Head of a civilized
+Nation.
+
+HE has constraine
+Packet sent at 1519367274.417973
+Packet received from server: 00057ack, seq: 1
+Packet received at 1519367274.531236
+RTT: 0.113263
+Packet sent to Server: D000058d our Fellow-Citizens, taken Captive on the high
+Seas, to bear Arms against their Country, to become
+Packet sent at 1519367274.531282
+Packet received from server: 00058ack, seq: 0
+Packet received at 1519367274.644189
+RTT: 0.112907
+Packet sent to Server: D100059 the Executioners
+of their Friends and Brethren, or to fall themselves by their Hands.
+
+HE has excit
+Packet sent at 1519367274.644229
+Packet received from server: 00059ack, seq: 1
+Packet received at 1519367274.757719
+RTT: 0.113490
+Packet sent to Server: D000060ed domestic Insurrections amongst us, and has endeavoured
+to bring on the Inhabitants of our Frontie
+Packet sent at 1519367274.757759
+Packet received from server: 00060ack, seq: 0
+Packet received at 1519367274.871777
+RTT: 0.114018
+Packet sent to Server: D100061rs, the merciless Indian
+Savages, whose known Rule of Warfare, is an undistinguished
+Destruction, of
+Packet sent at 1519367274.871841
+Packet received from server: 00061ack, seq: 1
+Packet received at 1519367274.985636
+RTT: 0.113795
+Packet sent to Server: D000062 all Ages, Sexes, and Conditions.
+
+IN every Stage of these Oppressions we have Petitioned for Redres
+Packet sent at 1519367274.985684
+timeout: no events
+resend count: 1
+Packet to Server on resend: D000062 all Ages, Sexes, and Conditions.
+
+IN every Stage of these Oppressions we have Petitioned for Redres
+timeout: no events
+resend count: 2
+Packet to Server on resend: D000062 all Ages, Sexes, and Conditions.
+
+IN every Stage of these Oppressions we have Petitioned for Redres
+Packet received from server: 00062ack, seq: 0
+Packet received at 1519367285.108544
+RTT: 10.122860
+Packet sent to Server: D100063s in
+the most humble Terms: Our repeated Petitions have been answered only
+by repeated Injury. A Pri
+Packet sent at 1519367285.108610
+Packet received from server: 00063ack, seq: 1
+Packet received at 1519367285.222199
+RTT: 0.113589
+Packet sent to Server: D000064nce, whose Character is thus marked by every
+Act which may define a Tyrant, is unfit to be the Ruler
+Packet sent at 1519367285.222265
+Packet received from server: 00064ack, seq: 0
+Packet received at 1519367285.335264
+RTT: 0.112999
+Packet sent to Server: D100065 of a free
+People.
+
+NOR have we been wanting in Attentions to our British Brethren. We
+have warned t
+Packet sent at 1519367285.335303
+Packet received from server: 00065ack, seq: 1
+Packet received at 1519367285.449440
+RTT: 0.114137
+Packet sent to Server: D000066hem, from Time to Time, of Attempts by their Legislature
+to extend an unwarrantable Jurisdiction ove
+Packet sent at 1519367285.449480
+timeout: no events
+resend count: 1
+Packet to Server on resend: D000066hem, from Time to Time, of Attempts by their Legislature
+to extend an unwarrantable Jurisdiction ove
+Packet received from server: 00066ack, seq: 0
+Packet received at 1519367290.570001
+RTT: 5.120521
+Packet sent to Server: D100067r us. We have reminded them
+of the Circumstances of our Emigration and Settlement here. We have
+appe
+Packet sent at 1519367290.570049
+Packet received from server: 00067ack, seq: 1
+Packet received at 1519367290.683704
+RTT: 0.113655
+Packet sent to Server: D000068aled to their native Justice and Magnanimity, and we have conjured
+them by the Ties of our common Ki
+Packet sent at 1519367290.683744
+Packet received from server: 00068ack, seq: 0
+Packet received at 1519367290.797876
+RTT: 0.114132
+Packet sent to Server: D100069ndred to disavow these Usurpations,
+which would inevitably interrupt our Connexions and
+Corresponden
+Packet sent at 1519367290.797916
+Packet received from server: 00069ack, seq: 1
+Packet received at 1519367290.911977
+RTT: 0.114061
+Packet sent to Server: D000070ce. They too have been deaf to the Voice of Justice and of
+Consanguinity. We must, therefore, acquie
+Packet sent at 1519367290.912015
+Packet received from server: 00070ack, seq: 0
+Packet received at 1519367291.025457
+RTT: 0.113442
+Packet sent to Server: D100071sce in the Necessity, which
+denounces our Separation, and hold them, as we hold the Rest of
+Mankind,
+Packet sent at 1519367291.025493
+timeout: no events
+resend count: 1
+Packet to Server on resend: D100071sce in the Necessity, which
+denounces our Separation, and hold them, as we hold the Rest of
+Mankind,
+Packet received from server: 00071ack, seq: 1
+Packet received at 1519367296.144298
+RTT: 5.118805
+Packet sent to Server: D000072 Enemies in War, in Peace Friends.
+
+WE, therefore, the Representatives of the UNITED STATES OF AMERI
+Packet sent at 1519367296.144336
+Packet received from server: 00072ack, seq: 0
+Packet received at 1519367296.257117
+RTT: 0.112781
+Packet sent to Server: D100073CA, in
+GENERAL CONGRESS Assembled, appealing to the Supreme Judge of the
+World for the Rectitude of 
+Packet sent at 1519367296.257156
+Packet received from server: 00073ack, seq: 1
+Packet received at 1519367296.371289
+RTT: 0.114133
+Packet sent to Server: D000074our Intentions, do, in the Name, and by
+Authority of the good People of these Colonies, solemnly Pub
+Packet sent at 1519367296.371329
+Packet received from server: 00074ack, seq: 0
+Packet received at 1519367296.484403
+RTT: 0.113074
+Packet sent to Server: D100075lish and
+Declare, That these United Colonies are, and of Right ought to be,
+FREE AND INDEPENDENT STA
+Packet sent at 1519367296.484443
+Packet received from server: 00075ack, seq: 1
+Packet received at 1519367296.597990
+RTT: 0.113547
+Packet sent to Server: D000076TES; that they are absolved from all
+Allegiance to the British Crown, and that all political Connexi
+Packet sent at 1519367296.598028
+Packet received from server: 00076ack, seq: 0
+Packet received at 1519367296.710935
+RTT: 0.112907
+Packet sent to Server: D100077on
+between them and the State of Great-Britain, is, and ought to be,
+totally dissolved; and that as 
+Packet sent at 1519367296.710975
+Packet received from server: 00077ack, seq: 1
+Packet received at 1519367296.824334
+RTT: 0.113359
+Packet sent to Server: D000078FREE AND INDEPENDENT STATES, they have
+full Power to levy War, conclude Peace, contract Alliances, e
+Packet sent at 1519367296.824375
+Packet received from server: 00078ack, seq: 0
+Packet received at 1519367296.937740
+RTT: 0.113365
+Packet sent to Server: D100079stablish
+Commerce, and to do all other Acts and Things which INDEPENDENT STATES
+may of Right do. And
+Packet sent at 1519367296.937780
+timeout: no events
+resend count: 1
+Packet to Server on resend: D100079stablish
+Commerce, and to do all other Acts and Things which INDEPENDENT STATES
+may of Right do. And
+Packet received from server: 00079ack, seq: 1
+Packet received at 1519367302.056791
+RTT: 5.119011
+Packet sent to Server: D000080 for the Support of this Declaration, with a firm
+Reliance on the Protection of DIVINE PROVIDENCE, w
+Packet sent at 1519367302.056838
+timeout: no events
+resend count: 1
+Packet to Server on resend: D000080 for the Support of this Declaration, with a firm
+Reliance on the Protection of DIVINE PROVIDENCE, w
+Packet received from server: 00080ack, seq: 0
+Packet received at 1519367307.176267
+RTT: 5.119429
+Packet sent to Server: D100081e mutually pledge to
+each other our Lives, our Fortunes, and our sacred Honour.
+
+Packet sent at 1519367307.176312
+Packet received from server: 00081ack, seq: 1
+Packet sent to Server: FF00081I'm Done
+Packet received from server: 00081ack, seq: F
+FIN ack, finish communication
+Last packet received at 1519367307.392153
+FirstPackt sent at: 1519367207.882681, LastPacket received at: 1519367307.392153
+Throughput~: 81MBps
