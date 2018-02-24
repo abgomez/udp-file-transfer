@@ -28,7 +28,7 @@ Internal Functions:
 * closeConnection
 
 #### Constraints:
-The client can only sends files of less than 10,000,000Mbytes
+The client can only sends files of less than 10,000,000 bytes
 
 ## Functions
 ### sendFirstMsg: 
