@@ -30,7 +30,7 @@ will assume that the client is down. The server can send the following packets:
 * err - file not found
 
 The following image displays the sequence and time of each interaction. 
-![TimeLine Sequence](https://github.com/abgomez/udp-file-transfer/blob/master/stopWait/images/timeLine.PNG)
+![TimeLine Sequence](https://github.com/s18-nets/s18-nets-udp-file-transfer-abgomez/blob/master/stopWait/images/timeLine.PNG)
 
 ## Packet Structure 
 ### Packet's Header
@@ -75,4 +75,4 @@ Type | seq | Sequence Number | Message
 1 bytes | 1 bytes | up to 5 bytes | up to 100 bytes
 
 ## State Machine
-![State Machine](https://github.com/abgomez/udp-file-transfer/blob/master/stopWait/images/stateMachine.PNG)
+![State Machine](https://github.com/s18-nets/s18-nets-udp-file-transfer-abgomez/blob/master/stopWait/images/stateMachine.PNG)
