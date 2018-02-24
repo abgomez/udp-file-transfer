@@ -63,7 +63,8 @@ but it will create duplicate information.
 ### Sequence Number
 Altough the stop-and-wait implementation does not use the sequence number, both client and server still add it to 
 the final packet. The sequence number will be extremly useful, when implementing sliding windows. The sequence number can
-go from 0 - 99,999 this implies that our protocol can not handle files of size greater than 10,000,00.
+go from 0 - 99,999 this implies that our protocol can not handle files of size
+greater than 10,000,00 bytes
 
 ### Message
 The last seccion of our packet is the message, this is the intended data that we want to send. 

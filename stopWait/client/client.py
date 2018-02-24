@@ -99,7 +99,7 @@ def sendAck():
 
 #Function: openFile
 #Description: open the file that the user wants to send to the server. The File will be split in sections of
-#             100 MB and they will be save into a dictionary. The total file size must be less than 100,000MB
+#             100 MB and they will be save into a dictionary. The total file size must be less than 10,000,000B
 #             the protocol can only handle upto 99999 packets
 def openFile():
     #global variables
@@ -115,7 +115,7 @@ def openFile():
     fileLen = len(textArray)
 
     #if the size is greater than 100,000MB. Terminate execution.
-    if fileLen > 100000:
+    if fileLen > 10000000:
         if verbose: print "ERROR File to big"
         sys.exit(1)
 
