@@ -93,7 +93,7 @@ p3.sh | ~29s | 274 bytes/s | [putP3.log](https://github.com/s18-nets/s18-nets-ud
 
 ## Testing
 I tested the client by doing several runs, first without the proxy and eventually I ran all three scripts provided by Dr. Freudenthal. 
-The client was tested with two files: [declaration.txt](https://github.com/s18-nets/s18-nets-udp-file-transfer-abgomez/tree/master/stopWait/client/declaration.txt) and [bigFile.txt](https://github.com/s18-nets/s18-nets-udp-file-transfer-abgomez/tree/master/stopWait/client/bigFile.txt) 
+The client was tested with two files: [declaration.txt](https://github.com/s18-nets/s18-nets-udp-file-transfer-abgomez/blob/master/stopWait/client/declaration.txt) and [bigFile.txt](https://github.com/s18-nets/s18-nets-udp-file-transfer-abgomez/blob/master/stopWait/client/bigFile.txt) 
 
 To verify the successful execution I compared the files size and I check the modification date. 
 
