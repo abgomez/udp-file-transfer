@@ -43,11 +43,16 @@ On this example we will execute the server and client, the client will send a ge
 by sending data block each time it receives an ack. 
 
 starting server
-![StartingServer](https://github.com/abgomez/udp-file-transfer/tree/master/stopWait/images/serverStart.PNG)
+
+![StartingServer](https://github.com/s18-nets/s18-nets-udp-file-transfer-abgomez/blob/master/stopWait/images/serverStart.PNG)
+
 sending data blocks to client
-![SendData](https://github.com/abgomez/udp-file-transfer/tree/master/stopWait/images/sendData.PNG)
+
+![SendData](https://github.com/s18-nets/s18-nets-udp-file-transfer-abgomez/blob/master/stopWait/images/sendData.PNG)
+
 ending communication
-![endCommunication](https://github.com/abgomez/udp-file-transfer/tree/master/stopWait/images/endCom.PNG)
+
+![endCommunication](https://github.com/s18-nets/s18-nets-udp-file-transfer-abgomez/blob/master/stopWait/images/endCom.PNG)
 
 ## known bugs
 I can tell that if my client or server receive a really late packet and if that packet has the same sequence as the packet that I'm currently waiting then they will duplicate some data blocks, nothing will fail but the final text will be incorrect.
