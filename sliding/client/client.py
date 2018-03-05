@@ -3,7 +3,7 @@ from socket import *
 from select import *
 
 #Global variables
-serverAddr = ('localhost', 50001)
+serverAddr = ('localhost', 50000)
 packetType = bytearray()
 packetSequence = bytearray()
 packetMessage = bytearray()
@@ -16,6 +16,7 @@ packetBuffer = {}
 packetDic = {}
 sequence = 0
 lastAck = 0
+finFlag = 0
 
 #define packet type
 GET = 'G'
@@ -33,24 +34,66 @@ def sendAck():
     global packetSequence
     global packetMessage
     global packetDic
+    global packetBuffer
     
     #identify if we got the expected packet
     nextPacket = lastAck + 1
     print "lastAck %d" % lastAck
     if int(packetSequence) == nextPacket:
-        #valid packet received, save data and send acknowledge
-        packetDic[int(packetSequence)] = packetMessage
-        lastAck = int(packetSequence)
+        if not packetBuffer: #buffer empty process normaly
+            #valid packet received, save data and send acknowledge
+            packetDic[int(packetSequence)] = packetMessage
+            lastAck = int(packetSequence)
 
-        #create acknowledge
-        packetType = bytearray(ACK, 'utf-8')
-        sequenceStr = packetSequence+','
-        packetSequence = bytearray(sequenceStr, 'utf-8')
-        packetMessage = bytearray("ack", 'utf-8') 
-        packetToServer = packetType+packetSequence+packetMessage
+            #create acknowledge
+            packetType = bytearray(ACK, 'utf-8')
+            sequenceStr = packetSequence+','
+            packetSequence = bytearray(sequenceStr, 'utf-8')
+            packetMessage = bytearray("ack", 'utf-8') 
+            packetToServer = packetType+packetSequence+packetMessage
 
-        clientSocket.sendto(packetToServer, serverAddr)
-        if verbose: print "Packet sent to server: %s" % packetToServer
+            clientSocket.sendto(packetToServer, serverAddr)
+            if verbose: print "Packet sent to server: %s" % packetToServer
+        else: #we have packets in the buffer, figure out which ones
+            #save packet into dic
+            packetDic[int(packetSequence)] = packetMessage
+  
+            #save packets in the buffer and send acknowledge, ack are cumulative
+            nextPacket = int(packetSequence) + 1
+            #find if we have the packet in the buffer
+            while True:
+                if nextPacket in packetBuffer:
+                    packetDic[nextPacket] = packetBuffer[nextPacket]
+                    del packetBuffer[nextPacket]
+                    nextPacket += 1
+                #no more packet send ack of last packet
+                else:
+                    #create acknowledge
+                    packetType = bytearray(ACK, 'utf-8')
+                    tempString = "%s" % (nextPacket - 1)
+                    sequenceStr = tempString+','
+                    packetSequence = bytearray(sequenceStr, 'utf-8')
+                    packetMessage = bytearray("ack", 'utf-8') 
+                    packetToServer = packetType+packetSequence+packetMessage
+                    lastAck = nextPacket - 1
+ 
+                    clientSocket.sendto(packetToServer, serverAddr)
+                    if verbose: print "Packet sent to server: %s" % packetToServer
+                    break
+            #while !packetBuffer:
+            #    for key in packetBuffer.keys():
+            #        if key == nextPacket:
+            #            packetDic[nextPacket] = packetBuffer[nextBuffer]
+            #            del packetBuffer[key]
+            #    #continue looking for more packets
+            #    nextPacket += 1
+            
+    else:
+	#save packets into buffer, put packet might be delay
+        print "here in buffer"
+        print "received packet %s" %packetSequence
+        print "expected packet %d" % nextPacket
+        packetBuffer[int(packetSequence)] = packetMessage
 
 #Function: processMsg
 #Description: process incoming packets, the client can receive acks, data, fin or error packets from the server
@@ -69,6 +112,7 @@ def processMessage(sock):
     global blockSeq
     global fileLen
     global packetDic
+    global finFlag
     
     #retreive packet from server
     serverPacket, serverAddrPort = sock.recvfrom(2048)
@@ -92,16 +136,25 @@ def processMessage(sock):
 
     #identify what we got and process each packet properly
     if packetType == DTA:
-        sendAck()
+        #if finFlag == 1:
+        #    if int(packetSequence) == finalPacket:
+        #        #write file
+        #        outFile = open(fileName, 'w+')
+        #        for key in packetDic.keys():
+        #            outFile.write("%s" % packetDic[key])
+        #        outFile.close()
+        #else:
+            sendAck()
     elif packetType == FIN:
         print "End of file, creating local copy....." 
         print "File created in current directory: %s" % fileName
+        finFlag = 1
         
         #write file
-        outFile = open(fileName, 'w+')
-        for key in packetDic.keys():
-            outFile.write("%s" % packetDic[key])
-        outFile.close()
+        #outFile = open(fileName, 'w+')
+        #for key in packetDic.keys():
+        #    outFile.write("%s" % packetDic[key])
+        #outFile.close()
         #endTime = time.time()
         #if verbose: print "Last packet received at %f" % endTime
         #if verbose: print "FirstPackt sent at: %f, LastPacket received at: %f" % (initTime, endTime)
@@ -219,7 +272,13 @@ while True:
             #clientSocket.sendto(pckToServer, serverAddr)
             #resendCount += 1
             if verbose: print "resend count: %d" % resendCount
-        #if verbose: print "Packet to Server on resend: %c%c%s" % (pckToServer[0], pckToServer[1], pckToServer[2:])
+            #if verbose: print "Packet to Server on resend: %c%c%s" % (pckToServer[0], pckToServer[1], pckToServer[2:])
+            if finFlag == 1:
+                #write file
+                outFile = open(fileName, 'w+')
+                for key in packetDic.keys():
+                    outFile.write("%s" % packetDic[key])
+                outFile.close()
 
     #Figure out what we got
     for sock in readRdySet:

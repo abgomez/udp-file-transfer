@@ -18,6 +18,7 @@ timeoutCount = 0                   #determine if client is down
 windowSize = 5
 sequence = 0
 packetWindow = {}
+lastReceive = 0
 GET = 'G'                          #macro definitions to identify packages
 PUT = 'P'
 ACK = 'A'
@@ -96,6 +97,9 @@ def sendNextBlock():
      global packetMessage
      global packetSequence
      global totalPacket
+     global lastReceive
+     global lastAckRec
+     global tmpWindowIndex
 
      global activePacket
      global sequenceBlock
@@ -124,14 +128,12 @@ def sendNextBlock():
                  sock.sendto(packetToClient, clientAddrPort)
                  if verbose: print "Packet To client:  %s" % packetToClient
 
-             #identify active packet
-             #activePacket[0] = '1'
-             #activePacket[1] = 1
-
      #if we got an ack, then we need to send the next block or the FIN packet
      elif packetType == ACK:
+         if verbose: print "Window: %s" % packetWindow
          #figure out if we got the expected  ack 
          if int(packetSequence) == packetWindow[0]:
+             lastReceive = int(packetSequence)
              #figure out if we finish
              if int(packetSequence)+(windowSize-1) == totalPacket:
                  #create packet
@@ -142,16 +144,29 @@ def sendNextBlock():
 
                  sock.sendto(packetToClient, clientAddrPort)
                  if verbose: print "Packet To client:  %s" % packetToClient
+
+                 #update window
+                 for index in range(windowSize-1):
+                     packetWindow[index] = packetWindow[index+1]
+                 packetWindow[windowSize-1] = 'F'
+
              elif int(packetSequence)+(windowSize-1) > totalPacket:
                  if verbose: print "We already sent all packets, do nothing"
+                 #update window
+                 for index in range(windowSize-1):
+                     packetWindow[index] = packetWindow[index+1]
+                 packetWindow[windowSize-1] = 0
              else:    
                  #send next block
-                 print "sequence: %d " % sequence
+                 lastPacketSent = packetWindow[4]
+                 print "sequence: %d " % (lastPacketSent + 1)
+                 #print "sequence: %d " % sequence
                  #nextBlock = sequence + 1
 
                  #create packet
                  packetType = bytearray(DTA, 'utf-8')
-                 sequenceStr = "%s" % sequence 
+                 sequenceStr = "%s" % (lastPacketSent + 1)
+                 #sequenceStr = "%s" % sequence 
                  packetSequence = bytearray(sequenceStr+',', 'utf-8')
                  packetMessage = packetDic[sequence]
                  packetToClient = packetType+packetSequence+packetMessage
@@ -163,9 +178,107 @@ def sendNextBlock():
                  #update window
                  for index in range(windowSize-1):
                      packetWindow[index] = packetWindow[index+1]
-                 packetWindow[windowSize-1] = sequence
+                 packetWindow[windowSize-1] = lastPacketSent+1
+                 #packetWindow[windowSize-1] = sequence
 
                  sequence += 1
+         elif lastReceive > int(packetSequence):
+             if verbose: print "Assume Delayed Packet, do nothing" 
+         elif int(packetSequence) == lastReceive:
+             print "TDO" #TODO
+
+         #we got a cumulative ack
+         else:
+             sequenceRec = int(packetSequence)
+             packetDiff = 0                    #this difference will help us to identify how many packets do we need to send
+             windowIndex = 0
+             lastReceive = int(packetSequence)
+
+             #update widow to always have 5 packets in transit
+             for index in range(windowSize):
+                 if packetWindow[index] == sequenceRec:
+                     packetDiff = index       #the client received, this many packets
+             windowIndex = packetDiff
+             if windowIndex == 4:
+                 tmpWindowIndex = 0
+             else:
+                 tmpWindowIndex = windowSize - (windowIndex + 1)
+             #packetDiff = windowSize - (packetDiff + 1)
+             #packetDiff = indowSize - (packetDiff + 1)
+             lastPacketSent = packetWindow[4]
+             if lastPacketSent == 'F':
+                 if verbose: print "We are done, just ignore the ack"
+ 
+             else:
+                 print "window index: %d" % windowIndex
+                 print "difference: %d" % packetDiff
+                 print "lastPacket: %d" % lastPacketSent
+
+                 #update window
+                 #tempDiff = packetDifff
+                 loopRange = windowSize - (windowIndex+1)
+                 for index in range(loopRange):
+                     if windowIndex <= 3:
+                         windowIndex += 1
+                     packetWindow[index] = packetWindow[windowIndex]
+
+                 if verbose: print "Window: %s" % packetWindow
+
+                 #create next set of packets
+                 nextPacket = lastPacketSent + 1
+                 for packet in range(packetDiff+1):
+
+                 #figure out if we finish
+  #               if (nextPacket + windowSize) >= totalPacket:
+  #                   #create packet
+  #                   packetType = bytearray(FIN, 'utf-8')
+  #                   packetSequence = bytearray('0'+',', 'utf-8')
+#kik                     packetMessage = bytearray("Last packet", 'utf-8')
+#                     packetToClient = packetType+packetSequence+packetMessage
+#
+#                     sock.sendto(packetToClient, clientAddrPort)
+#                     if verbose: print "Packet To client:  %s" % packetToClient
+#
+                 #    #update window 
+                 #    packetWindow[tmpWindowIndex] = 'F'
+                 #    tmpWindowIndex += 1
+                 #    if verbose: print "Window: %s" % packetWindow
+
+                 #else:
+                     #figure out if we finish
+                     if nextPacket > totalPacket:
+                         #create packet
+                         packetType = bytearray(FIN, 'utf-8')
+                         packetSequence = bytearray('0'+',', 'utf-8')
+                         packetMessage = bytearray("Last packet", 'utf-8')
+                         packetToClient = packetType+packetSequence+packetMessage
+
+                         sock.sendto(packetToClient, clientAddrPort)
+                         if verbose: print "Packet To client:  %s" % packetToClient
+                         if verbose: print "Window: %s" % packetWindow
+
+                         #update window 
+                         packetWindow[tmpWindowIndex] = 'F'
+                         tmpWindowIndex += 1
+                         nextPacket += 1
+                         if verbose: print "Window: %s" % packetWindow
+                     else:
+                         #create packet
+                         packetType = bytearray(DTA, 'utf-8')
+                         sequenceStr = "%s" % nextPacket
+                         packetSequence = bytearray(sequenceStr+',', 'utf-8')
+                         packetMessage = packetDic[nextPacket]
+                         packetToClient = packetType+packetSequence+packetMessage
+
+                         #update window 
+                         packetWindow[tmpWindowIndex] = nextPacket
+                         tmpWindowIndex += 1
+                         nextPacket += 1
+
+                         sock.sendto(packetToClient, clientAddrPort)
+                         if verbose: print "Packet To client:  %s" % packetToClient
+                         if verbose: print "Window: %s" % packetWindow
+              
          
             
         #       if verbose: print "Incorrect acknowledge received"
