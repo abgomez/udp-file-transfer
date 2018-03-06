@@ -7,6 +7,7 @@ serverAddr = ('localhost', 50000)
 packetType = bytearray()
 packetSequence = bytearray()
 packetMessage = bytearray()
+packetToServer = bytearray()
 clientSocket = socket(AF_INET, SOCK_DGRAM)
 resendCount = 0
 verbose = 0
@@ -35,6 +36,7 @@ def sendAck():
     global packetMessage
     global packetDic
     global packetBuffer
+    global packetToServer
     
     #identify if we got the expected packet
     nextPacket = lastAck + 1
@@ -132,7 +134,7 @@ def processMessage(sock):
     #pckSeq = returnMsg[1]
     #blockSeq = returnMsg[2:7] #this sequence is not being use but we still need to handle it
     #message = returnMsg[7:] 
-    #resendCount = 0
+    resendCount = 0
 
     #identify what we got and process each packet properly
     if packetType == DTA:
@@ -147,7 +149,7 @@ def processMessage(sock):
             sendAck()
     elif packetType == FIN:
         print "End of file, creating local copy....." 
-        print "File created in current directory: %s" % fileName
+        #print "File created in current directory: %s" % fileName
         finFlag = 1
         
         #write file
@@ -268,17 +270,20 @@ while True:
             #closeConnection()
             sys.exit(1)
         else:
-            #resend last packet on timeout
-            #clientSocket.sendto(pckToServer, serverAddr)
-            #resendCount += 1
-            if verbose: print "resend count: %d" % resendCount
-            #if verbose: print "Packet to Server on resend: %c%c%s" % (pckToServer[0], pckToServer[1], pckToServer[2:])
             if finFlag == 1:
                 #write file
                 outFile = open(fileName, 'w+')
                 for key in packetDic.keys():
                     outFile.write("%s" % packetDic[key])
                 outFile.close()
+                print "File created in current directory: %s" % fileName
+                sys.exit(1)
+            else:
+                #resend last packet on timeout
+                clientSocket.sendto(packetToServer, serverAddr)
+                resendCount += 1
+                if verbose: print "resend count: %d" % resendCount
+                if verbose: print "Packet to Server on resend: %s" % packetToServer
 
     #Figure out what we got
     for sock in readRdySet:

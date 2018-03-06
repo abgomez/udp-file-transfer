@@ -110,7 +110,7 @@ def sendNextBlock():
          if openFile():
              #send first window, window size = 5
              sequence = 1
-             sequenceStr = "%s" % sequence
+             #sequenceStr = "%s" % sequence
              windowIndex = 0
              for index in range(windowSize):
                  #create packet
@@ -133,7 +133,8 @@ def sendNextBlock():
          if verbose: print "Window: %s" % packetWindow
          #figure out if we got the expected  ack 
          if int(packetSequence) == packetWindow[0]:
-             lastReceive = int(packetSequence)
+             lastReceive = int(packetSequence) #save last receive ack
+
              #figure out if we finish
              if int(packetSequence)+(windowSize-1) == totalPacket:
                  #create packet
@@ -146,19 +147,22 @@ def sendNextBlock():
                  if verbose: print "Packet To client:  %s" % packetToClient
 
                  #update window
-                 for index in range(windowSize-1):
+                 for index in range(windowSize-1): #windowSize - 1, we don't want to go over the window
                      packetWindow[index] = packetWindow[index+1]
-                 packetWindow[windowSize-1] = 'F'
+                 packetWindow[windowSize-1] = 'F' #update last item
 
+             #we already sent all packets
              elif int(packetSequence)+(windowSize-1) > totalPacket:
                  if verbose: print "We already sent all packets, do nothing"
                  #update window
-                 for index in range(windowSize-1):
+                 for index in range(windowSize-1): #windowSize - 1, we don't want to go over the window
                      packetWindow[index] = packetWindow[index+1]
-                 packetWindow[windowSize-1] = 0
+                 packetWindow[windowSize-1] = 0 #update the last item to zero, meaning we have nothing else to send
+
+             #we still have data to send
              else:    
                  #send next block
-                 lastPacketSent = packetWindow[4]
+                 lastPacketSent = packetWindow[windowSize-1]
                  print "sequence: %d " % (lastPacketSent + 1)
                  #print "sequence: %d " % sequence
                  #nextBlock = sequence + 1
@@ -182,30 +186,46 @@ def sendNextBlock():
                  #packetWindow[windowSize-1] = sequence
 
                  sequence += 1
+
+         #we got a delayed ack, but we already sent the data to the client. do nothing
          elif lastReceive > int(packetSequence):
              if verbose: print "Assume Delayed Packet, do nothing" 
+
+         #drop packet resend last
          elif int(packetSequence) == lastReceive:
-             print "TDO" #TODO
+             #create packet
+             packetType = bytearray(DTA, 'utf-8')
+             sequenceStr = "%s" % (lastReceive + 1)
+             packetSequence = bytearray(sequenceStr+',', 'utf-8')
+             packetMessage = packetDic[lastReceive+1]
+             packetToClient = packetType+packetSequence+packetMessage
+
+             sock.sendto(packetToClient, clientAddrPort)
+             if verbose: print "Packet To client:  %s" % packetToClient
+             if verbose: print "Window: %s" % packetWindow
+             #print "TDO" #TODO
 
          #we got a cumulative ack
          else:
              sequenceRec = int(packetSequence)
              packetDiff = 0                    #this difference will help us to identify how many packets do we need to send
              windowIndex = 0
-             lastReceive = int(packetSequence)
+             lastReceive = int(packetSequence) #update last ack receive
 
-             #update widow to always have 5 packets in transit
+             #update window to always have a full window in transit
              for index in range(windowSize):
                  if packetWindow[index] == sequenceRec:
                      packetDiff = index       #the client received, this many packets
              windowIndex = packetDiff
-             if windowIndex == 4:
+             if windowIndex == (windowSize-1):
                  tmpWindowIndex = 0
              else:
                  tmpWindowIndex = windowSize - (windowIndex + 1)
              #packetDiff = windowSize - (packetDiff + 1)
              #packetDiff = indowSize - (packetDiff + 1)
-             lastPacketSent = packetWindow[4]
+             lastPacketSent = packetWindow[windowSize-1]
+
+             #the last packet sent was a FIN, meaning we already sent all packets. do nothing
              if lastPacketSent == 'F':
                  if verbose: print "We are done, just ignore the ack"
  
@@ -218,7 +238,7 @@ def sendNextBlock():
                  #tempDiff = packetDifff
                  loopRange = windowSize - (windowIndex+1)
                  for index in range(loopRange):
-                     if windowIndex <= 3:
+                     if windowIndex <= (windowSize - 2): #we don't want to go over the window size
                          windowIndex += 1
                      packetWindow[index] = packetWindow[windowIndex]
 
