@@ -19,12 +19,100 @@ windowSize = 5
 sequence = 0
 packetWindow = {}
 lastReceive = 0
+lastAck = 0
+packetBuffer = {}
+finFlag = 0
 GET = 'G'                          #macro definitions to identify packages
 PUT = 'P'
 ACK = 'A'
 DTA = 'D'
 FIN = 'F'
 ERR = 'E'
+
+def sendAck():
+     #global variables
+     global sequence
+     global packetBuffer
+     global lastAck
+     global packetSequence
+     global packetMessage
+     global packetDic
+     global packetBuffer
+     global packetToServer
+     global packetType
+     global fileName
+
+     if packetType == PUT:
+         fileName = packetMessage
+         #create acknowledge
+         packetType = bytearray(ACK, 'utf-8')
+         packetSequence = bytearray('0'+',', 'utf-8')
+         packetMessage = bytearray("ack", 'utf-8') 
+         packetToClient = packetType+packetSequence+packetMessage
+
+         sock.sendto(packetToClient, clientAddrPort)
+         if verbose: print "Packet sent to client: %s" % packetToClient
+
+     else:
+      #identify if we got the expected packet
+      nextPacket = lastAck + 1
+      print "lastAck %d" % lastAck
+      if int(packetSequence) == nextPacket:
+          if not packetBuffer: #buffer empty process normaly
+              #valid packet received, save data and send acknowledge
+              packetDic[int(packetSequence)] = packetMessage
+              lastAck = int(packetSequence)
+
+              #create acknowledge
+              packetType = bytearray(ACK, 'utf-8')
+              sequenceStr = packetSequence+','
+              packetSequence = bytearray(sequenceStr, 'utf-8')
+              packetMessage = bytearray("ack", 'utf-8') 
+              packetToClient = packetType+packetSequence+packetMessage
+
+              sock.sendto(packetToClient, clientAddrPort)
+              if verbose: print "Packet sent to client: %s" % packetToClient
+          else: #we have packets in the buffer, figure out which ones
+              #save packet into dic
+              packetDic[int(packetSequence)] = packetMessage
+  
+              #save packets in the buffer and send acknowledge, ack are cumulative
+              nextPacket = int(packetSequence) + 1
+              #find if we have the packet in the buffer
+              while True:
+                  if nextPacket in packetBuffer:
+                      packetDic[nextPacket] = packetBuffer[nextPacket]
+                      del packetBuffer[nextPacket]
+                      nextPacket += 1
+                  #no more packet send ack of last packet
+                  else:
+                      #create acknowledge
+                      packetType = bytearray(ACK, 'utf-8')
+                      tempString = "%s" % (nextPacket - 1)
+                      sequenceStr = tempString+','
+                      packetSequence = bytearray(sequenceStr, 'utf-8')
+                      packetMessage = bytearray("ack", 'utf-8') 
+                      packetToClient = packetType+packetSequence+packetMessage
+                      lastAck = nextPacket - 1
+ 
+                      sock.sendto(packetToClient, clientAddrPort)
+                      if verbose: print "Packet sent to client: %s" % packetToClient
+                      break
+             #while !packetBuffer:
+             #    for key in packetBuffer.keys():
+            #        if key == nextPacket:
+            #            packetDic[nextPacket] = packetBuffer[nextBuffer]
+            #            del packetBuffer[key]
+            #    #continue looking for more packets
+            #    nextPacket += 1
+            
+      else:
+     	  #save packets into buffer, put packet might be delay
+          print "here in buffer"
+          print "received packet %s" %packetSequence
+          print "expected packet %d" % nextPacket
+          packetBuffer[int(packetSequence)] = packetMessage
+    #sys.exit(1)
 
 #Function: openFile
 #Description: open requested file, the server needs to identify which file the client requested
@@ -203,7 +291,6 @@ def sendNextBlock():
              sock.sendto(packetToClient, clientAddrPort)
              if verbose: print "Packet To client:  %s" % packetToClient
              if verbose: print "Window: %s" % packetWindow
-             #print "TDO" #TODO
 
          #we got a cumulative ack
          else:
@@ -343,6 +430,7 @@ def processClientMessage(sock):
         global timeoutCount
         global sequenceBlock
         global resendCount
+        global finFlag
 
         #get client's packet
         clientPacket, clientAddrPort = sock.recvfrom(2048)
@@ -379,8 +467,11 @@ def processClientMessage(sock):
                 #        openFile()
                 #else
                 sendNextBlock()
-        elif packetType == PUT or packetType == DTA or packetType == FIN:
-               print "TODO" #sendAck() 
+        elif packetType == PUT or packetType == DTA:
+               sendAck() 
+        elif packetType == FIN:
+            print "End of File, creating local copy....."
+            finFlag = 1
     
     
 
@@ -408,6 +499,13 @@ while True:
                 #assume client is down.
                 if timeoutCount == 5:
                         print "TODO" #cleanUp()
+                if finFlag == 1:
+                    #write file
+                    outFile = open(fileName, 'w+')
+                    for key in packetDic.keys():
+                        outFile.write("%s" % packetDic[key])
+                    outFile.close()
+                    print "File created in current directory: %s" % fileName
                 print "timeout: no events"
                 timeoutCount += 1
 	for sock in readRdySet:
