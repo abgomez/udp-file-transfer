@@ -29,6 +29,35 @@ DTA = 'D'
 FIN = 'F'
 ERR = 'E'
 
+#Function: cleanUp
+#Description: It may be the case where the client is down and the server is no getting any response back
+#             to avoid a infinite wait, the server will reset the connection after 5 timeouts. 
+def cleanUp():
+    #global variables
+    global inFile
+    global outFile
+    global fileName
+    global lastPacket
+    global activePacket
+    global timeoutCount
+    global packetType
+
+    try:
+        inFile.close()
+    except:
+        print "File not Open"
+
+    fileName = ""
+    lastAck = 0
+    sequence = 0
+    finFlag = 0
+    packetBuffer = {}
+    lastReceive = 0
+    packetWindow = {}
+    packetDic = {}
+    timeoutCount = 0
+    if verbose: print "Refresh, ready to receive"
+
 def sendAck():
      #global variables
      global sequence
@@ -124,6 +153,7 @@ def openFile():
         global packetDic
         #global pckSeq
         global inFile
+        global fileName
 
         #verify files exists, if not send error packet to client
         if not os.path.exists(packetMessage):
@@ -136,6 +166,7 @@ def openFile():
                 return 0
         else:
                 #open file
+                fileName = packetMessage
                 inFile = open(packetMessage)
                 text = inFile.read()
                 textArray = bytearray(text, 'utf-8')
@@ -170,6 +201,7 @@ def openFile():
                         stIndex = endIndex
                         endIndex += 100
                 packetDic[seqNum] = textArray[stIndex:]
+                #print packetDic
                 return 1
 
 #Function: sendNextBlock
@@ -260,7 +292,8 @@ def sendNextBlock():
                  sequenceStr = "%s" % (lastPacketSent + 1)
                  #sequenceStr = "%s" % sequence 
                  packetSequence = bytearray(sequenceStr+',', 'utf-8')
-                 packetMessage = packetDic[sequence]
+                 #packetMessage = packetDic[sequence]
+                 packetMessage = packetDic[lastPacketSent+1]
                  packetToClient = packetType+packetSequence+packetMessage
 
                  sock.sendto(packetToClient, clientAddrPort)
@@ -273,7 +306,7 @@ def sendNextBlock():
                  packetWindow[windowSize-1] = lastPacketSent+1
                  #packetWindow[windowSize-1] = sequence
 
-                 sequence += 1
+                 #sequence += 1
 
          #we got a delayed ack, but we already sent the data to the client. do nothing
          elif lastReceive > int(packetSequence):
@@ -281,11 +314,18 @@ def sendNextBlock():
 
          #drop packet resend last
          elif int(packetSequence) == lastReceive:
-             #create packet
-             packetType = bytearray(DTA, 'utf-8')
-             sequenceStr = "%s" % (lastReceive + 1)
-             packetSequence = bytearray(sequenceStr+',', 'utf-8')
-             packetMessage = packetDic[lastReceive+1]
+             if int(packetSequence) == totalPacket: #sent FIN data
+                 #create packet
+                 packetType = bytearray(FIN, 'utf-8')
+                 packetSequence = bytearray('0'+',', 'utf-8')
+                 packetMessage = bytearray("Last packet", 'utf-8')
+                 #packetToClient = packetType+packetSequence+packetMessage
+             else:
+                 #create packet
+                 packetType = bytearray(DTA, 'utf-8')
+                 sequenceStr = "%s" % (lastReceive + 1)
+                 packetSequence = bytearray(sequenceStr+',', 'utf-8')
+                 packetMessage = packetDic[lastReceive+1]
              packetToClient = packetType+packetSequence+packetMessage
 
              sock.sendto(packetToClient, clientAddrPort)
@@ -490,23 +530,23 @@ readSockFunc[serverSocket] = processClientMessage
 
 print "ready to receive"
 while True:
-	readRdySet, writeRdySet, errorRdySet = select(readSockFunc.keys(),
-                                                      writeSockFunc.keys(), 
-                                                      errorSockFunc.keys(),
-                                                      timeout)
-        if not readRdySet and not writeRdySet and not errorRdySet:
-                #if we reach the a fifth time without a client's reponse
-                #assume client is down.
-                if timeoutCount == 5:
-                        print "TODO" #cleanUp()
-                if finFlag == 1:
-                    #write file
-                    outFile = open(fileName, 'w+')
-                    for key in packetDic.keys():
-                        outFile.write("%s" % packetDic[key])
-                    outFile.close()
-                    print "File created in current directory: %s" % fileName
-                print "timeout: no events"
-                timeoutCount += 1
-	for sock in readRdySet:
-                readSockFunc[sock](sock)
+    readRdySet, writeRdySet, errorRdySet = select(readSockFunc.keys(),
+                                                   writeSockFunc.keys(), 
+                                                   errorSockFunc.keys(),
+                                                   timeout)
+    if not readRdySet and not writeRdySet and not errorRdySet:
+        #if we reach the a fifth time without a client's reponse
+        #assume client is down.
+        if timeoutCount == 5:
+            cleanUp()
+        if finFlag == 1:
+            #write file
+            outFile = open(fileName, 'w+')
+            for key in packetDic.keys():
+                outFile.write("%s" % packetDic[key])
+            outFile.close()
+            print "File created in current directory: %s" % fileName
+        print "timeout: no events"
+        timeoutCount += 1
+    for sock in readRdySet:
+        readSockFunc[sock](sock)
