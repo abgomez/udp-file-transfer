@@ -1,27 +1,42 @@
+#Abel Gomez 80602216
+#########################################################################################
+#########################################################################################
+# Program server.py                                                                     #
+# Description: The server responses datagram from a client; it implements               # 
+#              a sliding windows protocol.                                              # 
+#              The server implements a retransmit on duplicate policy, it identifies    # 
+#              if and ack or data block needs to be ignore due to old packets.          #
+#              The server has a verbose mode which prints to console all actions        #
+# How to use: python server.py                                                          #
+#                                                                                       #
+#  ----------------     Modification Log ----------------                               #
+#  Date          Name            Description                                            #
+# --------------------------------------------------------------------------------------#
+# 03/08/18      Abel Gomez       Initial Creation                                       #
+#########################################################################################
+#########################################################################################
+
 import sys, os
 from socket import *
 from select import select
 
 serverAddr = ("", 50001)           # any addr, port 50,001
-packetType = bytearray()              #packet type
-packetSequence = bytearray()               #sequence to identify active packet
-packetMessage = bytearray()              #message to send
-sequenceBlock = bytearray()        #sequence number, this variables is not currently being use
+packetType = bytearray()           #packet type
+packetSequence = bytearray()       #packet sequence
+packetMessage = bytearray()        #message to send
 totalPacket= 0                     #number of packets that we need to send to client.
-packetDic = {}                     #directory to save all pcks from file
+packetDic = {}                     #dictionary to save all pcks from file
 clientAddrPort = 50005             #dummy client port
-lastPacket = '0'                   #identify which was the last sequence that we got
 verbose = 1                        #verbose mode
 fileName = ""                      #file to proces
-activePacket = {}                  #dictionary to keep track of active packets
 timeoutCount = 0                   #determine if client is down
-windowSize = 5
-sequence = 0
-packetWindow = {}
-lastReceive = 0
-lastAck = 0
-packetBuffer = {}
-finFlag = 0
+windowSize = 5                     #window size, default 5
+sequence = 0                       #sequence used to send the first window
+packetWindow = {}                  #packet window, defualt size 5
+lastReceive = 0                    #variable to identify which was the last data block received
+lastAck = 0                        #last acknowledge receive
+packetBuffer = {}                  #buffer to temporal save packets
+finFlag = 0                        #flag to identify when a FIN packet is receive
 GET = 'G'                          #macro definitions to identify packages
 PUT = 'P'
 ACK = 'A'
@@ -33,14 +48,19 @@ ERR = 'E'
 #Description: It may be the case where the client is down and the server is no getting any response back
 #             to avoid a infinite wait, the server will reset the connection after 5 timeouts. 
 def cleanUp():
-    #global variables
     global inFile
     global outFile
     global fileName
-    global lastPacket
-    global activePacket
     global timeoutCount
     global packetType
+    global finFlag
+    global sequence
+    global lastAck
+    global packetBuffer
+    global lastReceive
+    global packetWindow
+    global packetDic
+    global packetSequence
 
     try:
         inFile.close()
@@ -56,21 +76,25 @@ def cleanUp():
     packetWindow = {}
     packetDic = {}
     timeoutCount = 0
+    packetType = {}
+    packetSequence = {}
     if verbose: print "Refresh, ready to receive"
 
+#Function: sendAck
+#Description: send an acknowledge after receiving a valid packet, a normal processing is follow if we get
+#             the expected ack, if not the data is put into the buffer. acks are cumulative meaning that
+#             we only acknowledge the last processed packet.
 def sendAck():
-     #global variables
-     global sequence
      global packetBuffer
      global lastAck
      global packetSequence
      global packetMessage
      global packetDic
-     global packetBuffer
      global packetToServer
      global packetType
      global fileName
 
+     #acknowledge the first PUT
      if packetType == PUT:
          fileName = packetMessage
          #create acknowledge
@@ -85,7 +109,6 @@ def sendAck():
      else:
       #identify if we got the expected packet
       nextPacket = lastAck + 1
-      print "lastAck %d" % lastAck
       if int(packetSequence) == nextPacket:
           if not packetBuffer: #buffer empty process normaly
               #valid packet received, save data and send acknowledge
@@ -127,21 +150,9 @@ def sendAck():
                       sock.sendto(packetToClient, clientAddrPort)
                       if verbose: print "Packet sent to client: %s" % packetToClient
                       break
-             #while !packetBuffer:
-             #    for key in packetBuffer.keys():
-            #        if key == nextPacket:
-            #            packetDic[nextPacket] = packetBuffer[nextBuffer]
-            #            del packetBuffer[key]
-            #    #continue looking for more packets
-            #    nextPacket += 1
-            
       else:
-     	  #save packets into buffer, put packet might be delay
-          print "here in buffer"
-          print "received packet %s" %packetSequence
-          print "expected packet %d" % nextPacket
+     	  #save packets into buffer, packet might be delay
           packetBuffer[int(packetSequence)] = packetMessage
-    #sys.exit(1)
 
 #Function: openFile
 #Description: open requested file, the server needs to identify which file the client requested
@@ -151,7 +162,6 @@ def openFile():
         global packetMessage
         global totalPacket
         global packetDic
-        #global pckSeq
         global inFile
         global fileName
 
@@ -171,16 +181,6 @@ def openFile():
                 text = inFile.read()
                 textArray = bytearray(text, 'utf-8')
 
-                #if file is bigger than 10,000,000Bytes, send error message
-                #the protocol can not handle really big packets
-                #if len(textArray) > 10000000:
-                #    if verbose: print "ERROR: file bigger than maximum size"
-                #    header = bytearray([ERR, '0'])
-                #    msg = "incorrect file my dear child"
-                #    pckToClient = header+bytearray("00000", 'utf-8')+msg
-                #    sock.sendto(pckToClient, clientAddrPort)
-                #    return 0
-                    
                 #split file in 100 bytes  blocks
                 numPcks = len(textArray)/100
                 if (len(textArray) % 100) == 0:
@@ -201,13 +201,19 @@ def openFile():
                         stIndex = endIndex
                         endIndex += 100
                 packetDic[seqNum] = textArray[stIndex:]
-                #print packetDic
                 return 1
 
 #Function: sendNextBlock
 #Description: send next block or FIN packet
 #             the client sends acks for each data block that it receives 
 #             the server needs to identify which block it needs to send next or if FIN packet is required
+#             a full windows needs to be transit all time
+#             a few cases can ocurr during transfer
+#                  normal processing: we got an expected ack, send next packet in the window
+#                  duplicate ack: assume lost packet resend last packet sent
+#                  old ack: acks are cumulative, old acks are ignored since we already got a most recent ack
+#                  ahead ack: this mean that the ack received is greater than the expected ack. we need send the 
+#                             necessary packets to keep a full window in transit.
 def sendNextBlock():
      #global variables
      global packetType 
@@ -220,10 +226,6 @@ def sendNextBlock():
      global lastReceive
      global lastAckRec
      global tmpWindowIndex
-
-     global activePacket
-     global sequenceBlock
-     global nextBlock
 
      #if we got a get request, open file and send first block
      if packetType == GET: 
@@ -283,30 +285,22 @@ def sendNextBlock():
              else:    
                  #send next block
                  lastPacketSent = packetWindow[windowSize-1]
-                 print "sequence: %d " % (lastPacketSent + 1)
-                 #print "sequence: %d " % sequence
-                 #nextBlock = sequence + 1
 
                  #create packet
                  packetType = bytearray(DTA, 'utf-8')
                  sequenceStr = "%s" % (lastPacketSent + 1)
-                 #sequenceStr = "%s" % sequence 
                  packetSequence = bytearray(sequenceStr+',', 'utf-8')
-                 #packetMessage = packetDic[sequence]
                  packetMessage = packetDic[lastPacketSent+1]
                  packetToClient = packetType+packetSequence+packetMessage
 
                  sock.sendto(packetToClient, clientAddrPort)
                  if verbose: print "Packet To client:  %s" % packetToClient
-                 #sequence = nextBlock
 
                  #update window
                  for index in range(windowSize-1):
                      packetWindow[index] = packetWindow[index+1]
                  packetWindow[windowSize-1] = lastPacketSent+1
-                 #packetWindow[windowSize-1] = sequence
 
-                 #sequence += 1
 
          #we got a delayed ack, but we already sent the data to the client. do nothing
          elif lastReceive > int(packetSequence):
@@ -319,13 +313,13 @@ def sendNextBlock():
                  packetType = bytearray(FIN, 'utf-8')
                  packetSequence = bytearray('0'+',', 'utf-8')
                  packetMessage = bytearray("Last packet", 'utf-8')
-                 #packetToClient = packetType+packetSequence+packetMessage
              else:
                  #create packet
                  packetType = bytearray(DTA, 'utf-8')
                  sequenceStr = "%s" % (lastReceive + 1)
                  packetSequence = bytearray(sequenceStr+',', 'utf-8')
                  packetMessage = packetDic[lastReceive+1]
+
              packetToClient = packetType+packetSequence+packetMessage
 
              sock.sendto(packetToClient, clientAddrPort)
@@ -348,8 +342,6 @@ def sendNextBlock():
                  tmpWindowIndex = 0
              else:
                  tmpWindowIndex = windowSize - (windowIndex + 1)
-             #packetDiff = windowSize - (packetDiff + 1)
-             #packetDiff = indowSize - (packetDiff + 1)
              lastPacketSent = packetWindow[windowSize-1]
 
              #the last packet sent was a FIN, meaning we already sent all packets. do nothing
@@ -357,10 +349,6 @@ def sendNextBlock():
                  if verbose: print "We are done, just ignore the ack"
  
              else:
-                 print "window index: %d" % windowIndex
-                 print "difference: %d" % packetDiff
-                 print "lastPacket: %d" % lastPacketSent
-
                  #update window
                  #tempDiff = packetDifff
                  loopRange = windowSize - (windowIndex+1)
@@ -374,24 +362,6 @@ def sendNextBlock():
                  #create next set of packets
                  nextPacket = lastPacketSent + 1
                  for packet in range(packetDiff+1):
-
-                 #figure out if we finish
-  #               if (nextPacket + windowSize) >= totalPacket:
-  #                   #create packet
-  #                   packetType = bytearray(FIN, 'utf-8')
-  #                   packetSequence = bytearray('0'+',', 'utf-8')
-#kik                     packetMessage = bytearray("Last packet", 'utf-8')
-#                     packetToClient = packetType+packetSequence+packetMessage
-#
-#                     sock.sendto(packetToClient, clientAddrPort)
-#                     if verbose: print "Packet To client:  %s" % packetToClient
-#
-                 #    #update window 
-                 #    packetWindow[tmpWindowIndex] = 'F'
-                 #    tmpWindowIndex += 1
-                 #    if verbose: print "Window: %s" % packetWindow
-
-                 #else:
                      #figure out if we finish
                      if nextPacket > totalPacket:
                          #create packet
@@ -409,6 +379,7 @@ def sendNextBlock():
                          tmpWindowIndex += 1
                          nextPacket += 1
                          if verbose: print "Window: %s" % packetWindow
+                     #send the necessary packets to have a full window in transit
                      else:
                          #create packet
                          packetType = bytearray(DTA, 'utf-8')
@@ -425,38 +396,6 @@ def sendNextBlock():
                          sock.sendto(packetToClient, clientAddrPort)
                          if verbose: print "Packet To client:  %s" % packetToClient
                          if verbose: print "Window: %s" % packetWindow
-              
-         
-            
-        #       if verbose: print "Incorrect acknowledge received"
-        #        #send previous block
-        #        #the server retransmit on duplicate, this mean that it responses to all packets
-        #        header = bytearray([DTA, activePacket[0]])
-        #        sequence = "%05d" % nextBlock
-        #        sequenceBlock = bytearray(sequence)
-        #        pckToClient = header+sequenceBlock+packetDic[activePacket[1]]
-        #        sock.sendto(pckToClient, clientAddrPort)
-        #    else:
-        #        #figure out if we finish
-        #        if activePacket[1] == totalPacket:
-        #            header = bytearray([FIN, 'F'])
-        #            pckToClient = header+bytearray("00000", 'utf-8')+bytearray("I'm Done", 'utf-8')
-        #            if verbose: print "Packet sent to Client: %c%c%s" % (pckToClient[0], pckToClient[1], pckToClient[2:])
-        #            sock.sendto(pckToClient, clientAddrPort) #            activePacket[1] = totalPacket #        #if still more packets, send next one and update active packet
-        #        else:
-        #            nextBlock = activePacket[1] + 1
-        #            if activePacket[0] == '0':
-        #                activePacket[0] = '1'
-        #            else:
-        #                activePacket[0] = '0'
-        #            activePacket[1] = nextBlock
-        #            #create header
-        #            header = bytearray([DTA, activePacket[0]])
-        #            sequence = "%05d" % nextBlock #the sequence number is useless on this protocol
-        #            sequenceBlock = bytearray(sequence)
-        #            pckToClient = header+sequenceBlock+packetDic[nextBlock]
-        #            if verbose: print "Packet sent to Client: %c%c%s" % (pckToClient[0], pckToClient[1], pckToClient[2:])
-        #            sock.sendto(pckToClient, clientAddrPort)
 
 #Function: processClientMessage
 #Description: the function will handle all incoming packages
@@ -468,7 +407,6 @@ def processClientMessage(sock):
         global packetMessage
         global clientAddrPort
         global timeoutCount
-        global sequenceBlock
         global resendCount
         global finFlag
 
@@ -484,28 +422,14 @@ def processClientMessage(sock):
         sequenceIndex = tempString.find(',') # identify where the sequence ends
         packetSequence = tempString[0:sequenceIndex]
         packetMessage = tempString[sequenceIndex+1:]
-        #pckSeq = clientPacket[1]
-        #sequenceBlock = clientPacket[2:7]
-        #message = clientPacket[7:]
         if verbose:
             print "Packet type: %c" % packetType
             print "Packet sequence: %s" % packetSequence 
             print "Message: %s" % packetMessage
-        #timeoutCount = 0
+        timeoutCount = 0
         
         #identify packet type
         if packetType == GET or packetType == ACK:
-                #if packetType == GET:
-                #    if not os.path.exists(packetMessage):
-                #        packetType = bytearray(ERR, 'utf-8') 
-                #        packetSequence = bytearray('0'+',', 'utf-8')
-                #        packetMessage = bytearray("ERROR: file requested by client do not exists", 'utf-8')
-                #        packetToClient = packetType+packetSequence+packetMessage
-                #        sock.sendto(packetToClient, clientAddrPort)
-                #        #TODO cleanUP
-                #    else:
-                #        openFile()
-                #else
                 sendNextBlock()
         elif packetType == PUT or packetType == DTA:
                sendAck() 

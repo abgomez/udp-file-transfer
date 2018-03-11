@@ -43,6 +43,10 @@ windowSize = 5                                                     #default wind
 packetWindow = {}                                                  #packet window, defualt size 5
 lastReceive = 0                                                    #variable to identify which was the last data block received
 totalPacket = 0                                                    #total number of packets to send
+RTT = 0                                                            #round trip time
+initTime = 0                                                       #time when we send the first packet
+endTime = 0                                                        #time when we receive the last packet
+fileLen = 0                                                        #size of input file
 
 #define packet type
 GET = 'G'
@@ -98,6 +102,7 @@ def openFile():
     global totalPacket
     global packetDic
     global inFile
+    global fileLen
 
     #verify files exists, if not send error packet to client
     if not os.path.exists(fileName):
@@ -108,6 +113,7 @@ def openFile():
         inFile = open(fileName)
         text = inFile.read()
         textArray = bytearray(text, 'utf-8')
+        fileLen = len(textArray)
 
         #split file in 100 bytes  blocks
         numPcks = len(textArray)/100
@@ -152,15 +158,21 @@ def sendNextBlock():
      global lastReceive
      global lastAckRec
      global tmpWindowIndex
-
-     #global activePacket
-     #global sequenceBlock
-     #global nextBlock
-
+     global RTT
+     global endTime
+     global initTime
+     global sendTime
 
      #if we got  the first response from the server send the initial set of packets
      if int(packetSequence) == 0: 
          if openFile():
+             #log receive time
+             recTime = time.time()
+             if verbose: print "Packet received at %f" % recTime
+             #log Round Trip Time for each packet
+             RTT = recTime - sendTime
+             if verbose: print "RTT: %f" %RTT
+
              #send first window, default window size = 5
              sequence = 1
              windowIndex = 0
@@ -179,6 +191,10 @@ def sendNextBlock():
 
                  clientSocket.sendto(packetToServer, serverAddr)
                  if verbose: print "Packet To Server:  %s" % packetToServer
+ 
+                 #log time
+                 sendTime = time.time()
+                 if verbose: print "Packet sent at %f" % sendTime
 
      #if we got an ack, then we need to send the next block or the FIN packet
      elif packetType == ACK:
@@ -186,6 +202,14 @@ def sendNextBlock():
 
          #figure out if we got the expected  ack 
          if int(packetSequence) == packetWindow[0]:
+
+             #log receive time
+             recTime = time.time()
+             if verbose: print "Packet received at %f" % recTime
+             #log Round Trip Time for each packet
+             RTT = recTime - sendTime
+             if verbose: print "RTT: %f" %RTT
+
              lastReceive = int(packetSequence) #save last receive ack
 
              #figure out if we finish
@@ -227,6 +251,10 @@ def sendNextBlock():
                  clientSocket.sendto(packetToServer, serverAddr)
                  if verbose: print "Packet To Server:  %s" % packetToServer
 
+                 #log time
+                 sendTime = time.time()
+                 if verbose: print "Packet sent at %f" % sendTime
+
                  #update window
                  for index in range(windowSize-1):
                      packetWindow[index] = packetWindow[index+1]
@@ -256,8 +284,19 @@ def sendNextBlock():
              if verbose: print "Packet To Server:  %s" % packetToServer
              if verbose: print "Window: %s" % packetWindow
 
+             #log time
+             sendTime = time.time()
+             if verbose: print "Packet sent at %f" % sendTime
+
          #we got a cumulative ack
          else:
+             #log receive time
+             recTime = time.time()
+             if verbose: print "Packet received at %f" % recTime
+             #log Round Trip Time for each packet
+             RTT = recTime - sendTime
+             if verbose: print "RTT: %f" %RTT
+
              sequenceRec = int(packetSequence) #figure out which ack within the window we got
              packetDiff = 0                    #this difference will help us to identify how many packets do we need to send
              windowIndex = 0
@@ -307,6 +346,7 @@ def sendNextBlock():
                          tmpWindowIndex += 1
                          nextPacket += 1
                          if verbose: print "Window: %s" % packetWindow
+
                      else:
                          #create packet
                          packetType = bytearray(DTA, 'utf-8')
@@ -324,25 +364,39 @@ def sendNextBlock():
                          if verbose: print "Packet To Server:  %s" % packetToServer
                          if verbose: print "Window: %s" % packetWindow
 
+                         #log time
+                         sendTime = time.time()
+                         if verbose: print "Packet sent at %f" % sendTime
+
+
 #Function: sendAck
 #Description: send an acknowledge after receiving a valid packet, a normal processing is follow if we get
 #             the expected ack, if not the data is put into the buffer. acks are cumulative meaning that
 #             we only acknowledge the last processed packet.
 def sendAck():
-    #global variables
-    #global sequence
     global packetBuffer
     global lastAck
     global packetSequence
     global packetMessage
     global packetDic
-    #global packetBuffer
     global packetToServer
+    global RTT
+    global endTime
+    global initTime
+    global sendTime
     
     #identify if we got the expected packet
     nextPacket = lastAck + 1
     if int(packetSequence) == nextPacket:
         if not packetBuffer: #buffer empty process normaly
+
+            #log receive time
+            recTime = time.time()
+            if verbose: print "Packet received at %f" % recTime
+            #log Round Trip Time for each packet
+            RTT = recTime - sendTime
+            if verbose: print "RTT: %f" %RTT
+
             #valid packet received, save data and send acknowledge
             packetDic[int(packetSequence)] = packetMessage
             lastAck = int(packetSequence)
@@ -356,6 +410,10 @@ def sendAck():
 
             clientSocket.sendto(packetToServer, serverAddr)
             if verbose: print "Packet sent to server: %s" % packetToServer
+
+            #log send time
+            sendTime = time.time()
+            if verbose: print "Packet sent at %f" % sendTime
         else: #we have packets in the buffer, figure out which ones
             #save packet into dic
             packetDic[int(packetSequence)] = packetMessage
@@ -397,15 +455,9 @@ def processMessage(sock):
     global packetType 
     global packetSequence
     global packetMessage
-    #global lastPacket
-    #global pckDic
-    #global message
     global resendCount
     global endTime
     global initTime
-    #global blockSeq
-    #global fileLen
-    #global packetDic
     global finFlag
     
     #retreive packet from server
@@ -447,6 +499,8 @@ def sendFirstMessage():
     global packetSequence
     global packetMessage
     global packetToServer
+    global sendTime
+    global initTime
 
     #build packet 
     if mode == 'g':
@@ -461,6 +515,12 @@ def sendFirstMessage():
         packetToServer = packetType+packetSequence+packetMessage
     if verbose: print "Packet sent to server: %s" % packetToServer
     clientSocket.sendto(packetToServer, serverAddr)
+
+    #log send time
+    sendTime = time.time()
+    if verbose: print "Packet sent at %f" % sendTime
+    initTime = time.time()
+    if verbose: print "First packet sent at %f" % initTime
 
 #Function: usage
 #Description: display correct usage of parameters
@@ -540,6 +600,13 @@ while True:
                 outFile = open(fileName, 'w+')
                 for key in packetDic.keys():
                     outFile.write("%s" % packetDic[key])
+                #log time
+                endTime = time.time()
+                if verbose: print "Last packet received at %f" % endTime
+                if verbose: print "FirstPackt sent at: %f, LastPacket received at: %f" % (initTime, (endTime -  timeout) )
+                if verbose: print "Throughput~: %dMBps" % (os.path.getsize(fileName)/(endTime-initTime))
+                if verbose: print "WindowSize: %d bytes" % (windowSize*100)
+
                 outFile.close()
                 print "File created in current directory: %s" % fileName
                 sys.exit(1)
@@ -553,6 +620,12 @@ while True:
                         if verbose: print "Packet to Server on resend: %s" % packetToServer
                     elif lastReceive + 1 > totalPacket:
                         if verbose: print "Transfer completed successfully"
+                        #log time
+                        endTime = time.time()
+                        if verbose: print "Last packet received at %f" % endTime
+                        if verbose: print "FirstPackt sent at: %f, LastPacket received at: %f" % (initTime, (endTime -  timeout) )
+                        if verbose: print "Throughput~: %dMBps" % (os.path.getsize(fileName)/(endTime-initTime))
+                        if verbose: print "WindowSize: %d bytes" % (windowSize*100)
                         sys.exit(1)
                     else: #get the last packet that we receive and send the next
                         #create packet
